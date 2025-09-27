@@ -23,6 +23,6 @@ func Router(db *sql.DB) *http.ServeMux {
 	huma.Get(api, "/teachers", teacherHandler.TeachersGet)
 	huma.Put(api, "/teachers/{id}", teacherHandler.UpdateTeacherHandler)
 	huma.Patch(api, "/teachers/{id}", teacherHandler.PatchTeacherHandler)
-
+	huma.Delete(api, "/teachers/{id}", teacherHandler.DeleteTeacherHandler)
 	return router
 }

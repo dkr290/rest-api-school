@@ -17,6 +17,7 @@ type DatabaseInf interface {
 	GetAllTeachers(map[string]string, []string) (*sql.Rows, error)
 	UpdateTeacher(int, models.Teacher) (models.Teacher, error)
 	PatchTeacher(int, models.Teacher) (models.Teacher, error)
+	DeleteTeacher(int) error
 }
 
 type Teachers struct {
@@ -240,4 +241,30 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 	}
 
 	return existingTeacher, nil
+}
+
+func (t *Teachers) DeleteTeacher(id int) error {
+	result, err := t.db.Exec("DELETE from teachers WHERE id = ?", id)
+	if err != nil {
+		return huma.Error500InternalServerError(
+			"Error deleting teacher",
+			err,
+		)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return huma.Error500InternalServerError(
+			"Error retreiving delete result",
+			err,
+		)
+	}
+
+	if rowsAffected == 0 {
+		return huma.Error404NotFound(
+			"Teacher not found",
+			err,
+		)
+	}
+
+	return nil
 }

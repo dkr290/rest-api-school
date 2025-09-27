@@ -173,3 +173,36 @@ func (h *TeacherHandlers) PatchTeacherHandler(
 	resp.Body.Data = updatedTeacher
 	return &resp, nil
 }
+
+func (h *TeacherHandlers) DeleteTeacherHandler(ctx context.Context, input *struct {
+	ID int `path:"id"`
+},
+) (*struct {
+	Body struct {
+		Status string `json:"status"`
+		ID     int    `json:"id"`
+	}
+}, error,
+) {
+	err := h.teachersDB.DeleteTeacher(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	output := &struct {
+		Body struct {
+			Status string `json:"status"`
+			ID     int    `json:"id"`
+		}
+	}{
+		Body: struct {
+			Status string `json:"status"`
+			ID     int    `json:"id"`
+		}{
+			Status: "Teacher deleted sucessfully",
+			ID:     input.ID,
+		},
+	}
+
+	return output, err
+}
