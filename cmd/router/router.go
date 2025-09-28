@@ -75,5 +75,13 @@ func Router(db *sql.DB) *http.ServeMux {
 		Summary:     "Patch teachers",
 		Description: "Patch bulk many teachers fields.",
 	}, teacherHandler.PatchTeachersHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "delete-teachers",
+		Method:      http.MethodDelete,
+		Path:        "/teachers",
+		Summary:     "Delete teachers",
+		Description: "Delete bulk many teachers fields.",
+	}, teacherHandler.DeleteTeachersHandler)
 	return router
 }

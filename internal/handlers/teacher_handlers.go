@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"sync"
 
@@ -236,5 +237,30 @@ func (h *TeacherHandlers) PatchTeachersHandler(
 	resp := &TeachersPatchOutput{}
 	resp.Body.Status = "Success"
 	resp.Body.Data = patchedTeachers
+	return resp, nil
+}
+
+func (h *TeacherHandlers) DeleteTeachersHandler(
+	ctx context.Context,
+	input *DeleteTeachersInput,
+) (*DeleteAllTeachersOutput, error) {
+	deletedTeachers := make([]DeleteTeachersOutput, len(input.Body.Teachers))
+
+	fmt.Println(input.Body.Teachers)
+	for i, deletedTecher := range input.Body.Teachers {
+		fmt.Println(deletedTecher.ID)
+		err := h.teachersDB.DeleteTeacher(deletedTecher.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		resp := &DeleteTeachersOutput{}
+		resp.Body.Status = "Sucess"
+		resp.Body.ID = deletedTecher.ID
+		deletedTeachers[i] = *resp
+
+	}
+	resp := &DeleteAllTeachersOutput{}
+	resp.Teachers = deletedTeachers
 	return resp, nil
 }

@@ -100,3 +100,23 @@ type TeacherPatchBody struct {
 	Subject   string `json:"subject,omitempty"    example:"History"         doc:"Subject to teach"`
 	Email     string `json:"email,omitempty"      example:"ac@example.com " doc:"Email"`
 }
+
+type DeleteTeachersInput struct {
+	Body struct {
+		Teachers []DeleteTeacherBody `json:"teachers" doc:"Teachers to delete"`
+	}
+}
+type DeleteTeachersOutput struct {
+	Body struct {
+		Status string `json:"status"`
+		ID     int    `json:"id"`
+	}
+}
+
+type DeleteAllTeachersOutput struct {
+	Teachers []DeleteTeachersOutput `json:"teachers"`
+}
+
+type DeleteTeacherBody struct {
+	ID int `json:"id"`
+}
