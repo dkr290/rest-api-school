@@ -148,8 +148,8 @@ func (h *TeacherHandlers) UpdateTeacherHandler(
 
 func (h *TeacherHandlers) PatchTeacherHandler(
 	ctx context.Context,
-	input *TeachersPatchInput,
-) (*TeachersPatchOutput, error) {
+	input *TeacherPatchInput,
+) (*TeacherPatchOutput, error) {
 	id := input.Body.Teacher.ID
 	if id <= 0 {
 		return nil, huma.NewError(http.StatusBadRequest, "invalid teacher id", nil)
@@ -168,7 +168,7 @@ func (h *TeacherHandlers) PatchTeacherHandler(
 	if err != nil {
 		return nil, err
 	}
-	resp := TeachersPatchOutput{}
+	resp := TeacherPatchOutput{}
 	resp.Body.Status = "Sucess"
 	resp.Body.Data = updatedTeacher
 	return &resp, nil
@@ -205,4 +205,36 @@ func (h *TeacherHandlers) DeleteTeacherHandler(ctx context.Context, input *struc
 	}
 
 	return output, err
+}
+
+func (h *TeacherHandlers) PatchTeachersHandler(
+	ctx context.Context,
+	input *TeachersPatrchInput,
+) (*TeachersPatchOutput, error) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
+	patchedTeachers := make([]models.Teacher, len(input.Body.Teachers))
+
+	for i, newTeacher := range input.Body.Teachers {
+
+		teacher := models.Teacher{
+			ID:        newTeacher.ID,
+			FirstName: newTeacher.FirstName,
+			LastName:  newTeacher.LastName,
+			Email:     newTeacher.Email,
+			Class:     newTeacher.Class,
+			Subject:   newTeacher.Subject,
+		}
+		t, err := h.teachersDB.PatchTeacher(newTeacher.ID, teacher)
+		if err != nil {
+			return nil, err
+		}
+		patchedTeachers[i] = t
+	}
+
+	resp := &TeachersPatchOutput{}
+	resp.Body.Status = "Success"
+	resp.Body.Data = patchedTeachers
+	return resp, nil
 }

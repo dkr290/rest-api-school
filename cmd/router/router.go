@@ -56,8 +56,8 @@ func Router(db *sql.DB) *http.ServeMux {
 		OperationID: "patch-teacher",
 		Method:      http.MethodPatch,
 		Path:        "/teachers/{id}",
-		Summary:     "Patch/Partial Update of some fields",
-		Description: "Update some of the fields only.",
+		Summary:     "Patch teacher",
+		Description: "Patch some teacher fields only.",
 	}, teacherHandler.PatchTeacherHandler)
 
 	huma.Register(api, huma.Operation{
@@ -68,5 +68,12 @@ func Router(db *sql.DB) *http.ServeMux {
 		Description: "Delete a teacher record by ID.",
 	}, teacherHandler.DeleteTeacherHandler)
 
+	huma.Register(api, huma.Operation{
+		OperationID: "patch-teachers",
+		Method:      http.MethodPatch,
+		Path:        "/teachers",
+		Summary:     "Patch teachers",
+		Description: "Patch bulk many teachers fields.",
+	}, teacherHandler.PatchTeachersHandler)
 	return router
 }

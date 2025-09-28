@@ -60,31 +60,43 @@ type TeachersUpdateOutput struct {
 
 type TeacherUpdateBody struct {
 	ID        int    `json:"id"`
-	FirstName string `json:"first_name" doc:"First name of the teacher"`
-	LastName  string `json:"last_name"  doc:"Last name of the techer"`
-	Class     string `json:"class"      doc:"The class of the teacher"`
-	Subject   string `json:"subject"    doc:"Subject to teach"`
-	Email     string `json:"email"      doc:"Email"`
+	FirstName string `json:"first_name" example:"Alice"          doc:"First name of the teacher"`
+	LastName  string `json:"last_name"  example:"Brown"          doc:"Last name of the techer"`
+	Class     string `json:"class"      example:"9C"             doc:"The class of the teacher"`
+	Subject   string `json:"subject"    example:"History"        doc:"Subject to teach"`
+	Email     string `json:"email"      example:"ac@example.net" doc:"Email"`
 }
 
-type TeachersPatchInput struct {
+type TeacherPatchInput struct {
 	Body struct {
 		Teacher TeacherPatchBody `json:"teacher" doc:"Teacher"`
 	}
 }
 
-type TeachersPatchOutput struct {
+type TeacherPatchOutput struct {
 	Body struct {
 		Status string         `json:"status"`
 		Data   models.Teacher `json:"data"`
 	}
 }
 
+type TeachersPatrchInput struct {
+	Body struct {
+		Teachers []TeacherPatchBody `json:"teachers" doc:"Teachers patch"`
+	}
+}
+type TeachersPatchOutput struct {
+	Body struct {
+		Status string           `json:"status"`
+		Data   []models.Teacher `json:"data"`
+	}
+}
+
 type TeacherPatchBody struct {
 	ID        int    `json:"id"`
-	FirstName string `json:"first_name,omitempty" doc:"First name of the teacher"`
-	LastName  string `json:"last_name,omitempty"  doc:"Last name of the techer"`
-	Class     string `json:"class,omitempty"      doc:"The class of the teacher"`
-	Subject   string `json:"subject,omitempty"    doc:"Subject to teach"`
-	Email     string `json:"email,omitempty"      doc:"Email"`
+	FirstName string `json:"first_name,omitempty" example:"Alice"           doc:"First name of the teacher"`
+	LastName  string `json:"last_name,omitempty"  example:"Brown"           doc:"Last name of the techer"`
+	Class     string `json:"class,omitempty"      example:"11C"             doc:"The class of the teacher"`
+	Subject   string `json:"subject,omitempty"    example:"History"         doc:"Subject to teach"`
+	Email     string `json:"email,omitempty"      example:"ac@example.com " doc:"Email"`
 }
