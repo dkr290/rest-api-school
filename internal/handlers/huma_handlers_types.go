@@ -102,7 +102,7 @@ type TeacherPatchBody struct {
 }
 
 type DeleteTeachersInput struct {
-	IDs []int `query:"ids" example:"[104,106,103]" doc:"Teachers IDs to delete"`
+	IDn []int `query:"idn" example:"[104,106,103]" doc:"Teachers IDn to delete"`
 }
 type DeleteTeachersOutput struct {
 	Body struct {

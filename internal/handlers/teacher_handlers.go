@@ -246,9 +246,9 @@ func (h *TeacherHandlers) DeleteTeachersHandler(
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
-	deletedTeachers := make([]DeleteTeachersOutput, len(input.IDs))
+	deletedTeachers := make([]DeleteTeachersOutput, len(input.IDn))
 
-	for i, deletedTecher := range input.IDs {
+	for i, deletedTecher := range input.IDn {
 		err := h.teachersDB.DeleteTeacher(deletedTecher)
 		if err != nil {
 			return nil, err
