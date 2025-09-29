@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"sync"
 
@@ -247,19 +246,17 @@ func (h *TeacherHandlers) DeleteTeachersHandler(
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
-	deletedTeachers := make([]DeleteTeachersOutput, len(input.Body.Teachers))
+	deletedTeachers := make([]DeleteTeachersOutput, len(input.IDs))
 
-	fmt.Println(input.Body.Teachers)
-	for i, deletedTecher := range input.Body.Teachers {
-		fmt.Println(deletedTecher.ID)
-		err := h.teachersDB.DeleteTeacher(deletedTecher.ID)
+	for i, deletedTecher := range input.IDs {
+		err := h.teachersDB.DeleteTeacher(deletedTecher)
 		if err != nil {
 			return nil, err
 		}
 
 		resp := &DeleteTeachersOutput{}
-		resp.Body.Status = "Sucess"
-		resp.Body.ID = deletedTecher.ID
+		resp.Body.Status = "Success"
+		resp.Body.ID = deletedTecher
 		deletedTeachers[i] = *resp
 
 	}

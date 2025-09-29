@@ -102,9 +102,7 @@ type TeacherPatchBody struct {
 }
 
 type DeleteTeachersInput struct {
-	Body struct {
-		Teachers []DeleteTeacherBody `json:"teachers" doc:"Teachers to delete"`
-	}
+	IDs []int `query:"ids" example:"[104,106,103]" doc:"Teachers IDs to delete"`
 }
 type DeleteTeachersOutput struct {
 	Body struct {
@@ -117,8 +115,4 @@ type DeleteAllTeachersOutput struct {
 	Body struct {
 		Teachers []DeleteTeachersOutput `json:"teachers"`
 	}
-}
-
-type DeleteTeacherBody struct {
-	ID int `json:"id"`
 }
