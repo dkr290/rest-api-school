@@ -304,6 +304,12 @@ func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 		if rowsAffected > 0 {
 			deletedIds = append(deletedIds, id)
 		}
+		if rowsAffected < 1 {
+			tx.Rollback()
+			return nil, huma.Error500InternalServerError(
+				fmt.Sprintf("ID %d does not exists,  doing rollback...", id),
+			)
+		}
 	}
 	// commit changes
 	err = tx.Commit()
