@@ -107,12 +107,6 @@ type DeleteTeachersInput struct {
 type DeleteTeachersOutput struct {
 	Body struct {
 		Status string `json:"status"`
-		ID     int    `json:"id"`
-	}
-}
-
-type DeleteAllTeachersOutput struct {
-	Body struct {
-		Teachers []DeleteTeachersOutput `json:"teachers"`
+		ID     []int  `json:"id"`
 	}
 }

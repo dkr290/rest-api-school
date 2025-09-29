@@ -242,25 +242,15 @@ func (h *TeacherHandlers) PatchTeachersHandler(
 func (h *TeacherHandlers) DeleteTeachersHandler(
 	ctx context.Context,
 	input *DeleteTeachersInput,
-) (*DeleteAllTeachersOutput, error) {
-	h.mutex.Lock()
-	defer h.mutex.Unlock()
-
-	deletedTeachers := make([]DeleteTeachersOutput, len(input.IDn))
-
-	for i, deletedTecher := range input.IDn {
-		err := h.teachersDB.DeleteTeacher(deletedTecher)
-		if err != nil {
-			return nil, err
-		}
-
-		resp := &DeleteTeachersOutput{}
-		resp.Body.Status = "Success"
-		resp.Body.ID = deletedTecher
-		deletedTeachers[i] = *resp
-
+) (*DeleteTeachersOutput, error) {
+	respIDn, err := h.teachersDB.DeleteBulkTeachers(input.IDn)
+	if err != nil {
+		return nil, err
 	}
-	resp := &DeleteAllTeachersOutput{}
-	resp.Body.Teachers = deletedTeachers
+
+	resp := &DeleteTeachersOutput{}
+	resp.Body.Status = "Success"
+	resp.Body.ID = respIDn
+
 	return resp, nil
 }

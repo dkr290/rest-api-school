@@ -3,6 +3,7 @@ package dataops
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 	"strings"
@@ -18,6 +19,7 @@ type DatabaseInf interface {
 	UpdateTeacher(int, models.Teacher) (models.Teacher, error)
 	PatchTeacher(int, models.Teacher) (models.Teacher, error)
 	DeleteTeacher(int) error
+	DeleteBulkTeachers([]int) ([]int, error)
 }
 
 type Teachers struct {
@@ -267,4 +269,51 @@ func (t *Teachers) DeleteTeacher(id int) error {
 	}
 
 	return nil
+}
+
+func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
+	tx, err := t.db.Begin()
+	if err != nil {
+		log.Println(err)
+		return nil, huma.Error500InternalServerError("Error starting Transaction", err)
+	}
+	stmt, err := tx.Prepare("DELETE from teachers WHERE id = ?")
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return nil, huma.Error500InternalServerError("error preparing delete statement", err)
+	}
+	defer stmt.Close()
+
+	var deletedIds []int
+
+	for _, id := range idn {
+		res, err := stmt.Exec(id)
+		if err != nil {
+			tx.Rollback()
+			log.Println(err)
+			return nil, huma.Error500InternalServerError("error deleting teacher", err)
+		}
+		rowsAffected, err := res.RowsAffected()
+		if err != nil {
+			tx.Rollback()
+			log.Println(err)
+			return nil, huma.Error500InternalServerError("error retreiving delete result", err)
+		}
+		// if teacher was deleted then add ID to the deletedIDs slice
+		if rowsAffected > 0 {
+			deletedIds = append(deletedIds, id)
+		}
+	}
+	// commit changes
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+		return nil, huma.Error500InternalServerError("error commiting the transaction ", err)
+	}
+	if len(deletedIds) < 1 {
+		return nil, huma.Error400BadRequest("none of the id exists")
+	}
+
+	return deletedIds, err
 }
