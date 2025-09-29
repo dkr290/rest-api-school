@@ -60,7 +60,6 @@ apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
 metadata:
   name: mariadb-route
-  namespace: default
 spec:
   parentRefs:
     - name: mariadb-gateway

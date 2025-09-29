@@ -244,6 +244,9 @@ func (h *TeacherHandlers) DeleteTeachersHandler(
 	ctx context.Context,
 	input *DeleteTeachersInput,
 ) (*DeleteAllTeachersOutput, error) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
 	deletedTeachers := make([]DeleteTeachersOutput, len(input.Body.Teachers))
 
 	fmt.Println(input.Body.Teachers)
@@ -261,6 +264,6 @@ func (h *TeacherHandlers) DeleteTeachersHandler(
 
 	}
 	resp := &DeleteAllTeachersOutput{}
-	resp.Teachers = deletedTeachers
+	resp.Body.Teachers = deletedTeachers
 	return resp, nil
 }

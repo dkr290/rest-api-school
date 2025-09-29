@@ -114,7 +114,9 @@ type DeleteTeachersOutput struct {
 }
 
 type DeleteAllTeachersOutput struct {
-	Teachers []DeleteTeachersOutput `json:"teachers"`
+	Body struct {
+		Teachers []DeleteTeachersOutput `json:"teachers"`
+	}
 }
 
 type DeleteTeacherBody struct {
