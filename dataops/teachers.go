@@ -4,12 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net/http"
 	"reflect"
 	"strings"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
 )
 
 type DatabaseInf interface {
@@ -23,12 +22,14 @@ type DatabaseInf interface {
 }
 
 type Teachers struct {
-	db *sql.DB
+	db     *sql.DB
+	logger *logging.Logger
 }
 
-func NewTeachersDB(db *sql.DB) *Teachers {
+func NewTeachersDB(db *sql.DB, logger *logging.Logger) *Teachers {
 	return &Teachers{
-		db: db,
+		db:     db,
+		logger: logger,
 	}
 }
 
@@ -37,7 +38,7 @@ func (t *Teachers) InsertTeachers(tm *models.Teacher) (int64, error) {
 		            (first_name,last_name,email,class,subject)
                 VALUES(?,?,?,?,?)`)
 	if err != nil {
-		return 0, err
+		return 0, t.logger.ErrorLogger(err, "error prepare insert statement")
 	}
 	defer stmt.Close()
 	sqlResp, err := stmt.Exec(
@@ -48,11 +49,11 @@ func (t *Teachers) InsertTeachers(tm *models.Teacher) (int64, error) {
 		tm.Subject,
 	)
 	if err != nil {
-		return 0, err
+		return 0, t.logger.ErrorLogger(err, "error inseart teacher to the database")
 	}
 	lastID, err := sqlResp.LastInsertId()
 	if err != nil {
-		return 0, err
+		return 0, t.logger.ErrorLogger(err, "error get last insert teacher")
 	}
 	return lastID, nil
 }
@@ -69,9 +70,9 @@ func (t *Teachers) GetTeacherByID(id int) (models.Teacher, error) {
 			&teacher.Subject,
 		)
 	if err == sql.ErrNoRows {
-		return models.Teacher{}, fmt.Errorf("teacher not found %v", err)
+		return models.Teacher{}, t.logger.ErrorLogger(err, "teacher not found")
 	} else if err != nil {
-		return models.Teacher{}, fmt.Errorf("error quering the database %v", err)
+		return models.Teacher{}, t.logger.ErrorLogger(err, "error quering the database")
 	}
 	return teacher, nil
 }
@@ -115,7 +116,7 @@ func (t *Teachers) GetAllTeachers(params map[string]string, sortBy []string) (*s
 
 	rows, err := t.db.Query(query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("database query error %v", err)
+		return nil, t.logger.ErrorLogger(err, "error retreiving data")
 	}
 	return rows, nil
 }
@@ -137,9 +138,9 @@ func (t *Teachers) UpdateTeacher(id int, updatedTeacher models.Teacher) (models.
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			return models.Teacher{}, huma.Error500InternalServerError("Teacher not found", err)
+			return models.Teacher{}, t.logger.ErrorLogger(err, "Teacher not found")
 		} else {
-			return models.Teacher{}, huma.NewError(http.StatusNotFound, "unable to retreive data", err)
+			return models.Teacher{}, t.logger.ErrorLogger(err, "unable to retreive data")
 		}
 	}
 
@@ -157,7 +158,7 @@ func (t *Teachers) UpdateTeacher(id int, updatedTeacher models.Teacher) (models.
 		&updatedTeacher.ID,
 	)
 	if err != nil {
-		return models.Teacher{}, huma.Error500InternalServerError("Error updating teacher", err)
+		return models.Teacher{}, t.logger.ErrorLogger(err, "error updating teacher")
 	}
 
 	return updatedTeacher, nil
@@ -180,9 +181,9 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			return models.Teacher{}, huma.Error500InternalServerError("Teacher not found", err)
+			return models.Teacher{}, t.logger.ErrorLogger(err, "Teacher not found")
 		} else {
-			return models.Teacher{}, huma.NewError(http.StatusNotFound, "unable to retreive data", err)
+			return models.Teacher{}, t.logger.ErrorLogger(err, "unable to retreive data")
 		}
 	}
 
@@ -239,7 +240,7 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 		existingTeacher.ID,
 	)
 	if err != nil {
-		return models.Teacher{}, huma.Error500InternalServerError("Error updating teacher", err)
+		return models.Teacher{}, t.logger.ErrorLogger(err, "Error updating teacher")
 	}
 
 	return existingTeacher, nil
@@ -248,24 +249,15 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 func (t *Teachers) DeleteTeacher(id int) error {
 	result, err := t.db.Exec("DELETE from teachers WHERE id = ?", id)
 	if err != nil {
-		return huma.Error500InternalServerError(
-			"Error deleting teacher",
-			err,
-		)
+		return t.logger.ErrorLogger(err, "Error deleting teacher")
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return huma.Error500InternalServerError(
-			"Error retreiving delete result",
-			err,
-		)
+		return t.logger.ErrorLogger(err, "Error retreiving deleted teacher")
 	}
 
 	if rowsAffected == 0 {
-		return huma.Error404NotFound(
-			"Teacher not found",
-			err,
-		)
+		return t.logger.ErrorLogger(err, "Teacher not found")
 	}
 
 	return nil
@@ -275,13 +267,13 @@ func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 	tx, err := t.db.Begin()
 	if err != nil {
 		log.Println(err)
-		return nil, huma.Error500InternalServerError("Error starting Transaction", err)
+		return nil, t.logger.ErrorLogger(err, "Error starting Transaction")
 	}
 	stmt, err := tx.Prepare("DELETE from teachers WHERE id = ?")
 	if err != nil {
 		log.Println(err)
 		tx.Rollback()
-		return nil, huma.Error500InternalServerError("error preparing delete statement", err)
+		return nil, t.logger.ErrorLogger(err, "error preparing delete statement")
 	}
 	defer stmt.Close()
 
@@ -292,13 +284,13 @@ func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 		if err != nil {
 			tx.Rollback()
 			log.Println(err)
-			return nil, huma.Error500InternalServerError("error deleting teacher", err)
+			return nil, t.logger.ErrorLogger(err, "error deleting teacher")
 		}
 		rowsAffected, err := res.RowsAffected()
 		if err != nil {
 			tx.Rollback()
 			log.Println(err)
-			return nil, huma.Error500InternalServerError("error retreiving delete result", err)
+			return nil, t.logger.ErrorLogger(err, "error retreiving delete result")
 		}
 		// if teacher was deleted then add ID to the deletedIDs slice
 		if rowsAffected > 0 {
@@ -306,7 +298,7 @@ func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 		}
 		if rowsAffected < 1 {
 			tx.Rollback()
-			return nil, huma.Error500InternalServerError(
+			return nil, t.logger.ErrorMessage(
 				fmt.Sprintf("ID %d does not exists,  doing rollback...", id),
 			)
 		}
@@ -315,10 +307,10 @@ func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err)
-		return nil, huma.Error500InternalServerError("error commiting the transaction ", err)
+		return nil, t.logger.ErrorLogger(err, "error commiting the transaction")
 	}
 	if len(deletedIds) < 1 {
-		return nil, huma.Error400BadRequest("none of the id exists")
+		return nil, t.logger.ErrorMessage("none of the id exists")
 	}
 
 	return deletedIds, err

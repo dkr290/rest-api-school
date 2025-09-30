@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -29,7 +30,7 @@ func (h *TeacherHandlers) TeacherGet(ctx context.Context, input *struct {
 
 	teacher, err := h.teachersDB.GetTeacherByID(input.ID)
 	if err != nil {
-		return nil, huma.Error500InternalServerError("Error querying database:", err)
+		return nil, huma.Error500InternalServerError("Error quering database", err)
 	}
 
 	resp.Body.Data = teacher
@@ -103,7 +104,7 @@ func (h *TeacherHandlers) TeachersAdd(
 		id, err := h.teachersDB.InsertTeachers(&teacher)
 		if err != nil {
 			return nil, huma.Error500InternalServerError(
-				"Error inserting data to the database",
+				"Error adding to the database",
 				err,
 			)
 		}
@@ -138,7 +139,10 @@ func (h *TeacherHandlers) UpdateTeacherHandler(
 
 	updatedTeacher, err := h.teachersDB.UpdateTeacher(input.Body.Teacher.ID, teacher)
 	if err != nil {
-		return nil, err
+		if strings.Contains(err.Error(), "not found") {
+			return nil, huma.Error404NotFound("not found", err)
+		}
+		return nil, huma.Error500InternalServerError("error update database", err)
 	}
 	resp := TeachersUpdateOutput{}
 	resp.Body.Status = "Sucess"
@@ -163,13 +167,13 @@ func (h *TeacherHandlers) PatchTeacherHandler(
 		Class:     input.Body.Teacher.Class,
 		Subject:   input.Body.Teacher.Subject,
 	}
-
+	// TODO: to add better error handling here
 	updatedTeacher, err := h.teachersDB.PatchTeacher(input.Body.Teacher.ID, teacher)
 	if err != nil {
 		return nil, err
 	}
 	resp := TeacherPatchOutput{}
-	resp.Body.Status = "Sucess"
+	resp.Body.Status = "Success"
 	resp.Body.Data = updatedTeacher
 	return &resp, nil
 }

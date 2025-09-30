@@ -9,11 +9,13 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/dataops"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/handlers"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
 )
 
 func Router(db *sql.DB) *http.ServeMux {
+	llogger := logging.Init(false)
 	router := http.NewServeMux()
-	teachersDB := dataops.NewTeachersDB(db)
+	teachersDB := dataops.NewTeachersDB(db, llogger)
 	teacherHandler := handlers.NewTeachersHandler(teachersDB)
 
 	api := humago.New(router, huma.DefaultConfig("My API", "1.0.0"))
@@ -24,6 +26,7 @@ func Router(db *sql.DB) *http.ServeMux {
 		Path:        "/teachers/{id}",
 		Summary:     "Get a teacher",
 		Description: "Get a teacher by ID.",
+		Tags:        []string{"Teachers"},
 	}, teacherHandler.TeacherGet)
 
 	huma.Get(api, "/", teacherHandler.RootHandler)
@@ -34,6 +37,7 @@ func Router(db *sql.DB) *http.ServeMux {
 		Path:        "/teachers",
 		Summary:     "Create teachers",
 		Description: "Create teachers.",
+		Tags:        []string{"Teachers"},
 	}, teacherHandler.TeachersAdd)
 
 	huma.Register(api, huma.Operation{
@@ -42,6 +46,7 @@ func Router(db *sql.DB) *http.ServeMux {
 		Path:        "/teachers",
 		Summary:     "Get all teachers",
 		Description: "Get all teachers or with filtering.",
+		Tags:        []string{"Teachers"},
 	}, teacherHandler.TeachersGet)
 
 	huma.Register(api, huma.Operation{
@@ -50,6 +55,7 @@ func Router(db *sql.DB) *http.ServeMux {
 		Path:        "/teachers/{id}",
 		Summary:     "Update all fields of a teacher",
 		Description: "Update all fields of a teacher mandatory.",
+		Tags:        []string{"Teachers"},
 	}, teacherHandler.UpdateTeacherHandler)
 
 	huma.Register(api, huma.Operation{
@@ -58,6 +64,7 @@ func Router(db *sql.DB) *http.ServeMux {
 		Path:        "/teachers/{id}",
 		Summary:     "Patch teacher",
 		Description: "Patch some teacher fields only.",
+		Tags:        []string{"Teachers"},
 	}, teacherHandler.PatchTeacherHandler)
 
 	huma.Register(api, huma.Operation{
@@ -66,6 +73,7 @@ func Router(db *sql.DB) *http.ServeMux {
 		Path:        "/teachers/{id}",
 		Summary:     "Delete Teacher by ID",
 		Description: "Delete a teacher record by ID.",
+		Tags:        []string{"Teachers"},
 	}, teacherHandler.DeleteTeacherHandler)
 
 	huma.Register(api, huma.Operation{
@@ -74,6 +82,7 @@ func Router(db *sql.DB) *http.ServeMux {
 		Path:        "/teachers",
 		Summary:     "Patch teachers",
 		Description: "Patch bulk many teachers fields.",
+		Tags:        []string{"Teachers"},
 	}, teacherHandler.PatchTeachersHandler)
 
 	huma.Register(api, huma.Operation{
@@ -82,6 +91,7 @@ func Router(db *sql.DB) *http.ServeMux {
 		Path:        "/teachers",
 		Summary:     "Delete teachers",
 		Description: "Delete bulk many teachers fields.",
+		Tags:        []string{"Teachers"},
 	}, teacherHandler.DeleteTeachersHandler)
 	return router
 }
