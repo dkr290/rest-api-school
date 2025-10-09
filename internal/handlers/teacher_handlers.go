@@ -39,7 +39,7 @@ func (h *TeacherHandlers) TeacherGet(ctx context.Context, input *struct {
 
 func (h *TeacherHandlers) TeachersGet(
 	ctx context.Context,
-	input *TeachersQueryInput,
+	input *models.TeachersQueryInput,
 ) (*TeachersOutput, error) {
 	response := TeachersOutput{}
 
