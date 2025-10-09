@@ -38,6 +38,7 @@ func (t *Teachers) InsertTeachers(tm *models.Teacher) (int64, error) {
 		            (first_name,last_name,email,class,subject)
                 VALUES(?,?,?,?,?)`)
 	if err != nil {
+		t.logger.Logging.Errorf("error prepare insert statement %v", err)
 		return 0, t.logger.ErrorLogger(err, "error prepare insert statement")
 	}
 	defer stmt.Close()
@@ -49,10 +50,12 @@ func (t *Teachers) InsertTeachers(tm *models.Teacher) (int64, error) {
 		tm.Subject,
 	)
 	if err != nil {
+		t.logger.Logging.Errorf("error insert teacher to the database %v", err)
 		return 0, t.logger.ErrorLogger(err, "error inseart teacher to the database")
 	}
 	lastID, err := sqlResp.LastInsertId()
 	if err != nil {
+		t.logger.Logging.Errorf("eror get last insert teacher %v", err)
 		return 0, t.logger.ErrorLogger(err, "error get last insert teacher")
 	}
 	return lastID, nil
@@ -70,8 +73,10 @@ func (t *Teachers) GetTeacherByID(id int) (models.Teacher, error) {
 			&teacher.Subject,
 		)
 	if err == sql.ErrNoRows {
+		t.logger.Logging.Error("teacher not found")
 		return models.Teacher{}, t.logger.ErrorLogger(err, "teacher not found")
 	} else if err != nil {
+		t.logger.Logging.Errorf("error quering the database %v", err)
 		return models.Teacher{}, t.logger.ErrorLogger(err, "error quering the database")
 	}
 	return teacher, nil
@@ -116,6 +121,7 @@ func (t *Teachers) GetAllTeachers(params map[string]string, sortBy []string) (*s
 
 	rows, err := t.db.Query(query, args...)
 	if err != nil {
+		t.logger.Logging.Errorf("error retreiving data %v", err)
 		return nil, t.logger.ErrorLogger(err, "error retreiving data")
 	}
 	return rows, nil
@@ -181,8 +187,10 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
+			t.logger.Logging.Warnf("teacher not found %v", err)
 			return models.Teacher{}, t.logger.ErrorLogger(err, "Teacher not found")
 		} else {
+			t.logger.Logging.Errorf("unable to retreive data %v", err)
 			return models.Teacher{}, t.logger.ErrorLogger(err, "unable to retreive data")
 		}
 	}
@@ -240,6 +248,7 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 		existingTeacher.ID,
 	)
 	if err != nil {
+		t.logger.Logging.Errorf("Error updating teacher %v", err)
 		return models.Teacher{}, t.logger.ErrorLogger(err, "Error updating teacher")
 	}
 
@@ -249,14 +258,17 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 func (t *Teachers) DeleteTeacher(id int) error {
 	result, err := t.db.Exec("DELETE from teachers WHERE id = ?", id)
 	if err != nil {
+		t.logger.Logging.Errorf("error deleting teacher -  %v", err)
 		return t.logger.ErrorLogger(err, "Error deleting teacher")
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
+		t.logger.Logging.Errorf("error retreiving deleted teacher %v", err)
 		return t.logger.ErrorLogger(err, "Error retreiving deleted teacher")
 	}
 
 	if rowsAffected == 0 {
+		t.logger.Logging.Errorf("teacher not found %v", err)
 		return t.logger.ErrorLogger(err, "Teacher not found")
 	}
 
@@ -266,7 +278,7 @@ func (t *Teachers) DeleteTeacher(id int) error {
 func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 	tx, err := t.db.Begin()
 	if err != nil {
-		log.Println(err)
+		t.logger.Logging.Errorf("Error starting transaction %v", err)
 		return nil, t.logger.ErrorLogger(err, "Error starting Transaction")
 	}
 	stmt, err := tx.Prepare("DELETE from teachers WHERE id = ?")
@@ -283,7 +295,7 @@ func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 		res, err := stmt.Exec(id)
 		if err != nil {
 			tx.Rollback()
-			log.Println(err)
+			t.logger.Logging.Errorf("error deleting teacher %v", err)
 			return nil, t.logger.ErrorLogger(err, "error deleting teacher")
 		}
 		rowsAffected, err := res.RowsAffected()
