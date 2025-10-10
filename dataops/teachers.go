@@ -9,6 +9,7 @@ import (
 
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/utils"
 )
 
 type DatabaseInf interface {
@@ -34,21 +35,15 @@ func NewTeachersDB(db *sql.DB, logger *logging.Logger) *Teachers {
 }
 
 func (t *Teachers) InsertTeachers(tm *models.Teacher) (int64, error) {
-	stmt, err := t.db.Prepare(`INSERT INTO teachers
-		            (first_name,last_name,email,class,subject)
-                VALUES(?,?,?,?,?)`)
+	stmt, err := t.db.Prepare(utils.GenereateInsertQuery(models.Teacher{}))
 	if err != nil {
 		t.logger.Logging.Errorf("error prepare insert statement %v", err)
 		return 0, t.logger.ErrorLogger(err, "error prepare insert statement")
 	}
 	defer stmt.Close()
-	sqlResp, err := stmt.Exec(
-		tm.FirstName,
-		tm.LastName,
-		tm.Email,
-		tm.Class,
-		tm.Subject,
-	)
+
+	values := utils.GetStructValues(tm)
+	sqlResp, err := stmt.Exec(values...)
 	if err != nil {
 		t.logger.Logging.Errorf("error insert teacher to the database %v", err)
 		return 0, t.logger.ErrorLogger(err, "error inseart teacher to the database")

@@ -2,12 +2,12 @@
 package models
 
 type Teacher struct {
-	ID        int    `json:"id"`
-	FirstName string `json:"first_name" maxLength:"255" example:"Tom"     doc:"First name of the teacher" db:"id,omitempty"`
-	LastName  string `json:"last_name"  maxLength:"255" example:"Last"    doc:"Last name of the techer"   db:"first_name,omitempty"`
-	Class     string `json:"class"                      example:"10B"     doc:"The class of the teacher"  db:"last_name,omitempty"`
-	Subject   string `json:"subject"    maxLength:"255" example:"History" doc:"Subject to teach"          db:"subject,omitempty"`
-	Email     string `json:"email"      maxLength:"50"  example:"Email"   doc:"Email"                     db:"email,omitempty"`
+	ID        int    `json:"id"         db:"id,omitempty"`
+	FirstName string `json:"first_name" db:"first_name,omitempty"`
+	LastName  string `json:"last_name"  db:"last_name,omitempty"`
+	Class     string `json:"class"      db:"class,omitempty"`
+	Subject   string `json:"subject"    db:"subject,omitempty"`
+	Email     string `json:"email"      db:"email,omitempty"`
 }
 
 type TeacherInput struct {
