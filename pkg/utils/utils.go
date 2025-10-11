@@ -17,14 +17,15 @@ func GenereateInsertQuery(model any) string {
 		dbTag = strings.TrimSuffix(dbTag, "omitempty")
 		// skip id field if it is auto incrment
 		if dbTag != "" && dbTag != "id" {
-			if columns != "" {
-				columns += ", "
-				placeholders += ", "
-			}
+
 			columns += dbTag
-			placeholders += "?"
+			placeholders += "?,"
 		}
 	}
+	columns = removeLastComma(columns)
+	placeholders = removeLastComma(placeholders)
+
+	fmt.Printf("INSERT INTO teachers (%s) VALUES (%s)", columns, placeholders)
 	return fmt.Sprintf("INSERT INTO teachers (%s) VALUES (%s)", columns, placeholders)
 }
 
@@ -43,4 +44,11 @@ func GetStructValues(model any) []any {
 	}
 	log.Println("Values", values)
 	return values
+}
+
+func removeLastComma(s string) string {
+	if idx := strings.LastIndex(s, ","); idx != -1 {
+		s = s[:idx]
+	}
+	return s
 }
