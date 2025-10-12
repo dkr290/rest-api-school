@@ -13,24 +13,26 @@ func GenereateInsertQuery(model any) string {
 	var columns, placeholders string
 	for i := 0; i < modelType.NumField(); i++ {
 		dbTag := modelType.Field(i).Tag.Get("db")
-		fmt.Println("Db tag:", dbTag)
 		dbTag = strings.TrimSuffix(dbTag, "omitempty")
+		dbTag = strings.TrimSuffix(dbTag, ",")
 		// skip id field if it is auto incrment
 		if dbTag != "" && dbTag != "id" {
 
-			columns += dbTag
+			columns += dbTag + ","
 			placeholders += "?,"
 		}
 	}
 	columns = removeLastComma(columns)
 	placeholders = removeLastComma(placeholders)
 
-	fmt.Printf("INSERT INTO teachers (%s) VALUES (%s)", columns, placeholders)
 	return fmt.Sprintf("INSERT INTO teachers (%s) VALUES (%s)", columns, placeholders)
 }
 
 func GetStructValues(model any) []any {
 	modelValue := reflect.ValueOf(model)
+	if modelValue.Kind() == reflect.Ptr {
+		modelValue = modelValue.Elem()
+	}
 	modelType := modelValue.Type()
 
 	var values []any
