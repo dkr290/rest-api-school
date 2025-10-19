@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -53,4 +54,13 @@ func removeLastComma(s string) string {
 		s = s[:idx]
 	}
 	return s
+}
+
+func EmailCheck(email string) error {
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	em := strings.TrimSpace(email)
+	if !emailRegex.MatchString(em) {
+		return fmt.Errorf("invalid email: %s", em)
+	}
+	return nil
 }

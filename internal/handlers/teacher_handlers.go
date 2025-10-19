@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -9,6 +10,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/dataops"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/utils"
 )
 
 type TeacherHandlers struct {
@@ -94,6 +96,14 @@ func (h *TeacherHandlers) TeachersAdd(
 
 	for i, newTeacher := range input.Body.Teachers {
 
+		err := utils.EmailCheck(newTeacher.Email)
+		if err != nil {
+			return nil, huma.Error400BadRequest(
+				"Invalid mail format",
+				fmt.Errorf("invalid email: %s", newTeacher.Email),
+			)
+		}
+
 		teacher := models.Teacher{
 			FirstName: newTeacher.FirstName,
 			LastName:  newTeacher.LastName,
@@ -127,6 +137,14 @@ func (h *TeacherHandlers) UpdateTeacherHandler(
 	if id <= 0 {
 		return nil, huma.NewError(http.StatusBadRequest, "invalid teacher id", nil)
 	}
+	email := input.Body.Teacher.Email
+	err := utils.EmailCheck(email)
+	if err != nil {
+		return nil, huma.Error400BadRequest(
+			"Invalid mail format",
+			fmt.Errorf("invalid email: %s", email),
+		)
+	}
 
 	teacher := models.Teacher{
 		ID:        input.Body.Teacher.ID,
@@ -157,6 +175,16 @@ func (h *TeacherHandlers) PatchTeacherHandler(
 	id := input.Body.Teacher.ID
 	if id <= 0 {
 		return nil, huma.NewError(http.StatusBadRequest, "invalid teacher id", nil)
+	}
+
+	email := input.Body.Teacher.Email
+
+	err := utils.EmailCheck(email)
+	if err != nil {
+		return nil, huma.Error400BadRequest(
+			"Invalid mail format",
+			fmt.Errorf("invalid email: %s", email),
+		)
 	}
 
 	teacher := models.Teacher{
@@ -222,14 +250,15 @@ func (h *TeacherHandlers) PatchTeachersHandler(
 
 	for i, newTeacher := range input.Body.Teachers {
 
-		teacher := models.Teacher{
-			ID:        newTeacher.ID,
-			FirstName: newTeacher.FirstName,
-			LastName:  newTeacher.LastName,
-			Email:     newTeacher.Email,
-			Class:     newTeacher.Class,
-			Subject:   newTeacher.Subject,
+		err := utils.EmailCheck(newTeacher.Email)
+		if err != nil {
+			return nil, huma.Error400BadRequest(
+				"Invalid mail format",
+				fmt.Errorf("invalid email: %s", newTeacher.Email),
+			)
 		}
+
+		teacher := models.Teacher(newTeacher)
 		t, err := h.teachersDB.PatchTeacher(newTeacher.ID, teacher)
 		if err != nil {
 			return nil, err
