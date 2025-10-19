@@ -11,11 +11,11 @@ type Teacher struct {
 }
 
 type TeacherInput struct {
-	FirstName string `json:"first_name" maxLength:"255" example:"Tom"     doc:"First name of the teacher"`
-	LastName  string `json:"last_name"  maxLength:"255" example:"Last"    doc:"Last name of the techer"`
-	Class     string `json:"class"                      example:"10B"     doc:"The class of the teacher"`
-	Subject   string `json:"subject"    maxLength:"255" example:"History" doc:"Subject to teach"`
-	Email     string `json:"email"      maxLength:"50"  example:"Email"   doc:"Email"`
+	FirstName string `json:"first_name" required:"true" minLength:"2" maxLength:"255" example:"Tom"                 doc:"First name of the teacher"`
+	LastName  string `json:"last_name"  required:"true" minLength:"2" maxLength:"255" example:"Last"                doc:"Last name of the techer"`
+	Class     string `json:"class"      required:"true" minLength:"2" maxLength:"50"  example:"10B"                 doc:"The class of the teacher"`
+	Subject   string `json:"subject"    required:"true" minLength:"2" maxLength:"255" example:"History"             doc:"Subject to teach"`
+	Email     string `json:"email"      required:"true"               maxLength:"50"  example:"teacher@example.com" doc:"Email"`
 }
 
 type TeachersQueryInput struct {
