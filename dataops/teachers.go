@@ -1,3 +1,4 @@
+// Package dataops for database operations
 package dataops
 
 import (
@@ -12,16 +13,6 @@ import (
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/utils"
 )
 
-type DatabaseInf interface {
-	InsertTeachers(*models.Teacher) (int64, error)
-	GetTeacherByID(int) (models.Teacher, error)
-	GetAllTeachers(map[string]string, []string) (*sql.Rows, error)
-	UpdateTeacher(int, models.Teacher) (models.Teacher, error)
-	PatchTeacher(int, models.Teacher) (models.Teacher, error)
-	DeleteTeacher(int) error
-	DeleteBulkTeachers([]int) ([]int, error)
-}
-
 type Teachers struct {
 	db     *sql.DB
 	logger *logging.Logger
@@ -35,7 +26,7 @@ func NewTeachersDB(db *sql.DB, logger *logging.Logger) *Teachers {
 }
 
 func (t *Teachers) InsertTeachers(tm *models.Teacher) (int64, error) {
-	stmt, err := t.db.Prepare(utils.GenereateInsertQuery(models.Teacher{}))
+	stmt, err := t.db.Prepare(utils.GenereateInsertQuery(models.Teacher{}, "teachers"))
 	if err != nil {
 		t.logger.Logging.Errorf("error prepare insert statement %v", err)
 		return 0, t.logger.ErrorLogger(err, "error prepare insert statement")

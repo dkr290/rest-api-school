@@ -3,47 +3,55 @@ package dataops
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/utils"
 )
 
 type Students struct {
-	db *sql.DB
+	db     *sql.DB
+	logger *logging.Logger
 }
 
-func NewStudentsDB(db *sql.DB) *Students {
+func NewStudentsDB(db *sql.DB, logger *logging.Logger) *Students {
 	return &Students{
-		db: db,
+		db:     db,
+		logger: logger,
 	}
 }
 
-func (t *Students) Insertstudents(st *models.Student) (int64, error) {
-	stmt, err := t.db.Prepare(`INSERT INTO students
-		            (first_name,last_name,email,class)
-                VALUES(?,?,?,?)`)
+func (t *Students) InsertStudents(st *models.Student) (int64, error) {
+	stmt, err := t.db.Prepare(utils.GenereateInsertQuery(models.Student{}, "students"))
 	if err != nil {
-		return 0, err
+		t.logger.Logging.Errorf("error prepare insert statement %v", err)
+		return 0, t.logger.ErrorLogger(err, "error prepare insert statement")
 	}
 	defer stmt.Close()
-	sqlResp, err := stmt.Exec(
-		st.FirstName,
-		st.LastName,
-		st.Email,
-		st.Class,
-	)
+	values := utils.GetStructValues(st)
+
+	sqlResp, err := stmt.Exec(values...)
 	if err != nil {
-		return 0, err
+
+		t.logger.Logging.Errorf("error insert teacher to the database %v", err)
+		return 0, t.logger.ErrorLogger(err, "error inseart teacher to the database")
 	}
+
 	lastID, err := sqlResp.LastInsertId()
 	if err != nil {
-		return 0, err
+
+		t.logger.Logging.Errorf("eror get last insert teacher %v", err)
+		return 0, t.logger.ErrorLogger(err, "error get last insert teacher")
 	}
 	return lastID, nil
 }
+
+// TODO: to check logging and if everythging is setup like teachers
 
 func (t *Students) GetStudentByID(id int) (models.Student, error) {
 	var student models.Student
@@ -56,7 +64,7 @@ func (t *Students) GetStudentByID(id int) (models.Student, error) {
 			&student.Class,
 		)
 	if err == sql.ErrNoRows {
-		return models.Student{}, fmt.Errorf("teacher not found %v", err)
+		return models.Student{}, fmt.Errorf("student not found %v", err)
 	} else if err != nil {
 		return models.Student{}, fmt.Errorf("error quering the database %v", err)
 	}
@@ -106,11 +114,11 @@ func (t *Students) GetAllStudents(params map[string]string, sortBy []string) (*s
 	return rows, nil
 }
 
-func (t *Students) UpdateTeacher(id int, updatedTeacher models.Student) (models.Student, error) {
+func (t *Students) UpdateStudent(id int, updatedStudent models.Student) (models.Student, error) {
 	var existingStudent models.Student
 
 	row := t.db.QueryRow(
-		"SELECT id ,first_name,last_name,email,class from teachers WHERE id = ?",
+		"SELECT id ,first_name,last_name,email,class from students WHERE id = ?",
 		id,
 	)
 	err := row.Scan(
@@ -122,51 +130,50 @@ func (t *Students) UpdateTeacher(id int, updatedTeacher models.Student) (models.
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			return models.Student{}, huma.Error500InternalServerError("Teacher not found", err)
+			return models.Student{}, huma.Error500InternalServerError("Student not found", err)
 		} else {
 			return models.Student{}, huma.NewError(http.StatusNotFound, "unable to retreive data", err)
 		}
 	}
 
-	updatedTeacher.ID = existingStudent.ID
+	updatedStudent.ID = existingStudent.ID
 	switch {
 	}
 
 	_, err = t.db.Exec(
-		"UPDATE teachers SET first_name = ?, last_name = ? ,email = ? , class = ? WHERE id = ?  ",
-		&updatedTeacher.FirstName,
-		&updatedTeacher.LastName,
-		&updatedTeacher.Email,
-		&updatedTeacher.Class,
-		&updatedTeacher.ID,
+		"UPDATE students SET first_name = ?, last_name = ? ,email = ? , class = ? WHERE id = ?  ",
+		&updatedStudent.FirstName,
+		&updatedStudent.LastName,
+		&updatedStudent.Email,
+		&updatedStudent.Class,
+		&updatedStudent.ID,
 	)
 	if err != nil {
-		return models.Student{}, huma.Error500InternalServerError("Error updating teacher", err)
+		return models.Student{}, huma.Error500InternalServerError("Error updating student", err)
 	}
 
-	return updatedTeacher, nil
+	return updatedStudent, nil
 }
 
-func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.Teacher, error) {
-	var existingTeacher models.Teacher
+func (t *Students) PatchiStudent(id int, updatedStudent models.Student) (models.Student, error) {
+	var existingStudent models.Student
 
 	row := t.db.QueryRow(
-		"SELECT id ,first_name,last_name,email,class,subject from teachers WHERE id = ?",
+		"SELECT id ,first_name,last_name,email,class from students WHERE id = ?",
 		id,
 	)
 	err := row.Scan(
-		&existingTeacher.ID,
-		&existingTeacher.FirstName,
-		&existingTeacher.LastName,
-		&existingTeacher.Email,
-		&existingTeacher.Class,
-		&existingTeacher.Subject,
+		&existingStudent.ID,
+		&existingStudent.FirstName,
+		&existingStudent.LastName,
+		&existingStudent.Email,
+		&existingStudent.Class,
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			return models.Teacher{}, huma.Error500InternalServerError("Teacher not found", err)
+			return models.Student{}, huma.Error500InternalServerError("Student not found", err)
 		} else {
-			return models.Teacher{}, huma.NewError(http.StatusNotFound, "unable to retreive data", err)
+			return models.Student{}, huma.NewError(http.StatusNotFound, "unable to retreive data", err)
 		}
 	}
 
@@ -189,22 +196,22 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 
 	// apply updates using reflect package
 
-	teacherVal := reflect.ValueOf(&existingTeacher).Elem()
+	studentVal := reflect.ValueOf(&existingStudent).Elem()
 
-	updatedVal := reflect.ValueOf(updatedTeacher)
+	updatedVal := reflect.ValueOf(updatedStudent)
 
-	for i := 0; i < teacherVal.NumField(); i++ {
+	for i := 0; i < studentVal.NumField(); i++ {
 		updatedField := updatedVal.Field(i)
-		fieldName := teacherVal.Type().Field(i).Name
+		fieldName := studentVal.Type().Field(i).Name
 
 		// Check if the field is a string and not empty
 		if updatedField.Kind() == reflect.String && updatedField.String() != "" {
 			// Find the corresponding field in existingTeacher
-			existingField := teacherVal.FieldByName(fieldName)
+			existingField := studentVal.FieldByName(fieldName)
 
 			// Check if the field exists and is settable
 			if existingField.IsValid() && existingField.CanSet() {
-				// Check if the field in existingTeacher is also a string (for safety)
+				// Check if the field in existingStudent is also a string (for safety)
 				if existingField.Kind() == reflect.String {
 					// Set the value
 					existingField.SetString(updatedField.String())
@@ -214,26 +221,25 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 	}
 
 	_, err = t.db.Exec(
-		"UPDATE teachers SET first_name = ?, last_name = ? ,email = ? , class = ?,subject = ? WHERE id = ?  ",
-		existingTeacher.FirstName,
-		existingTeacher.LastName,
-		existingTeacher.Email,
-		existingTeacher.Class,
-		existingTeacher.Subject,
-		existingTeacher.ID,
+		"UPDATE students SET first_name = ?, last_name = ? ,email = ? , class = ? WHERE id = ?  ",
+		existingStudent.FirstName,
+		existingStudent.LastName,
+		existingStudent.Email,
+		existingStudent.Class,
+		existingStudent.ID,
 	)
 	if err != nil {
-		return models.Teacher{}, huma.Error500InternalServerError("Error updating teacher", err)
+		return models.Student{}, huma.Error500InternalServerError("Error updating student", err)
 	}
 
-	return existingTeacher, nil
+	return existingStudent, nil
 }
 
-func (t *Teachers) DeleteTeacher(id int) error {
-	result, err := t.db.Exec("DELETE from teachers WHERE id = ?", id)
+func (t *Students) DeleteStudent(id int) error {
+	result, err := t.db.Exec("DELETE from students WHERE id = ?", id)
 	if err != nil {
 		return huma.Error500InternalServerError(
-			"Error deleting teacher",
+			"Error deleting student",
 			err,
 		)
 	}
@@ -247,10 +253,63 @@ func (t *Teachers) DeleteTeacher(id int) error {
 
 	if rowsAffected == 0 {
 		return huma.Error404NotFound(
-			"Teacher not found",
+			"Student not found",
 			err,
 		)
 	}
 
 	return nil
+}
+
+func (t *Students) DeleteBulkStudents(idn []int) ([]int, error) {
+	tx, err := t.db.Begin()
+	if err != nil {
+		t.logger.Logging.Errorf("Error starting transaction %v", err)
+		return nil, t.logger.ErrorLogger(err, "Error starting Transaction")
+	}
+	stmt, err := tx.Prepare("DELETE from students WHERE id = ?")
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return nil, t.logger.ErrorLogger(err, "error preparing delete statement")
+	}
+	defer stmt.Close()
+
+	var deletedIds []int
+
+	for _, id := range idn {
+		res, err := stmt.Exec(id)
+		if err != nil {
+			tx.Rollback()
+			t.logger.Logging.Errorf("error deleting teacher %v", err)
+			return nil, t.logger.ErrorLogger(err, "error deleting teacher")
+		}
+		rowsAffected, err := res.RowsAffected()
+		if err != nil {
+			tx.Rollback()
+			log.Println(err)
+			return nil, t.logger.ErrorLogger(err, "error retreiving delete result")
+		}
+		// if teacher was deleted then add ID to the deletedIDs slice
+		if rowsAffected > 0 {
+			deletedIds = append(deletedIds, id)
+		}
+		if rowsAffected < 1 {
+			tx.Rollback()
+			return nil, t.logger.ErrorMessage(
+				fmt.Sprintf("ID %d does not exists,  doing rollback...", id),
+			)
+		}
+	}
+	// commit changes
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+		return nil, t.logger.ErrorLogger(err, "error commiting the transaction")
+	}
+	if len(deletedIds) < 1 {
+		return nil, t.logger.ErrorMessage("none of the id exists")
+	}
+
+	return deletedIds, err
 }

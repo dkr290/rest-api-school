@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func GenereateInsertQuery(model any) string {
+func GenereateInsertQuery(model any, name string) string {
 	modelType := reflect.TypeOf(model)
 	var columns, placeholders string
 	for i := 0; i < modelType.NumField(); i++ {
@@ -26,7 +26,7 @@ func GenereateInsertQuery(model any) string {
 	columns = removeLastComma(columns)
 	placeholders = removeLastComma(placeholders)
 
-	return fmt.Sprintf("INSERT INTO teachers (%s) VALUES (%s)", columns, placeholders)
+	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", name, columns, placeholders)
 }
 
 func GetStructValues(model any) []any {
