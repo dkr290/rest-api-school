@@ -55,6 +55,7 @@ func (t *Students) InsertStudents(st *models.Student) (int64, error) {
 
 func (t *Students) GetStudentByID(id int) (models.Student, error) {
 	var student models.Student
+
 	err := t.db.QueryRow("SELECT id, first_name, last_name ,email, class FROM students WHERE id = ?", id).
 		Scan(
 			&student.ID,
@@ -64,8 +65,10 @@ func (t *Students) GetStudentByID(id int) (models.Student, error) {
 			&student.Class,
 		)
 	if err == sql.ErrNoRows {
+		t.logger.Logging.Error("student not found")
 		return models.Student{}, fmt.Errorf("student not found %v", err)
 	} else if err != nil {
+		t.logger.Logging.Errorf("error quering the database %v", err)
 		return models.Student{}, fmt.Errorf("error quering the database %v", err)
 	}
 	return student, nil
@@ -109,6 +112,7 @@ func (t *Students) GetAllStudents(params map[string]string, sortBy []string) (*s
 
 	rows, err := t.db.Query(query, args...)
 	if err != nil {
+		t.logger.Logging.Errorf("error retreiving data %v", err)
 		return nil, fmt.Errorf("database query error %v", err)
 	}
 	return rows, nil
@@ -130,9 +134,11 @@ func (t *Students) UpdateStudent(id int, updatedStudent models.Student) (models.
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
+			t.logger.ErrorLogger(err, "error student not found")
 			return models.Student{}, huma.Error500InternalServerError("Student not found", err)
 		} else {
-			return models.Student{}, huma.NewError(http.StatusNotFound, "unable to retreive data", err)
+			t.logger.Logging.Errorf("unable to retreive data %v", err)
+			return models.Student{}, t.logger.ErrorLogger(err, "sql query error")
 		}
 	}
 
