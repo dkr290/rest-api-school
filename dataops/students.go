@@ -28,7 +28,7 @@ func (t *Students) InsertStudents(st *models.Student) (int64, error) {
 	stmt, err := t.db.Prepare(utils.GenereateInsertQuery(models.Student{}, "students"))
 	if err != nil {
 		t.logger.Logging.Debugf("error prepare insert statement %v", err)
-		return 0, t.logger.ErrorLogger(err, "sql database insert student error ")
+		return 0, t.logger.ErrorMessage("sql database insert student error ")
 	}
 	defer stmt.Close()
 	values := utils.GetStructValues(st)
@@ -37,19 +37,17 @@ func (t *Students) InsertStudents(st *models.Student) (int64, error) {
 	if err != nil {
 
 		t.logger.Logging.Debugf("error insert student to the database %v", err)
-		return 0, t.logger.ErrorLogger(err, "sql database error")
+		return 0, t.logger.ErrorMessage("sql database error")
 	}
 
 	lastID, err := sqlResp.LastInsertId()
 	if err != nil {
 
 		t.logger.Logging.Debugf("eror get last insert teacher %v", err)
-		return 0, t.logger.ErrorLogger(err, "sql database error")
+		return 0, t.logger.ErrorMessage("sql database error")
 	}
 	return lastID, nil
 }
-
-// TODO: to check logging and if everythging is setup like teachers
 
 func (t *Students) GetStudentByID(id int) (models.Student, error) {
 	var student models.Student
@@ -64,10 +62,10 @@ func (t *Students) GetStudentByID(id int) (models.Student, error) {
 		)
 	if err == sql.ErrNoRows {
 		t.logger.Logging.Debugf("error student not found %v", err)
-		return models.Student{}, t.logger.ErrorLogger(err, "sql student error")
+		return models.Student{}, t.logger.ErrorMessage("sql student error")
 	} else if err != nil {
 		t.logger.Logging.Debugf("error quring the database %v", err)
-		return models.Student{}, t.logger.ErrorLogger(err, "sql student error")
+		return models.Student{}, t.logger.ErrorMessage("sql student error")
 	}
 	return student, nil
 }
@@ -111,7 +109,7 @@ func (t *Students) GetAllStudents(params map[string]string, sortBy []string) (*s
 	rows, err := t.db.Query(query, args...)
 	if err != nil {
 		t.logger.Logging.Debugf("error retreiving the data %v", err)
-		return nil, t.logger.ErrorLogger(err, "error retrtreiving data")
+		return nil, t.logger.ErrorMessage("error retrtreiving data")
 	}
 	return rows, nil
 }
@@ -133,10 +131,10 @@ func (t *Students) UpdateStudent(id int, updatedStudent models.Student) (models.
 	if err != nil {
 		if err != sql.ErrNoRows {
 			t.logger.Logging.Debugf("student not found %v", err)
-			return models.Student{}, t.logger.ErrorLogger(err, "database retreive data error")
+			return models.Student{}, t.logger.ErrorMessage("database retreive data error")
 		} else {
 			t.logger.Logging.Debugf("unable to retreive the data %v", err)
-			return models.Student{}, t.logger.ErrorLogger(err, "sql error")
+			return models.Student{}, t.logger.ErrorMessage("sql error")
 		}
 	}
 
@@ -154,7 +152,7 @@ func (t *Students) UpdateStudent(id int, updatedStudent models.Student) (models.
 	)
 	if err != nil {
 		t.logger.Logging.Debugf("error updating the student database %v", err)
-		return models.Student{}, t.logger.ErrorLogger(err, "database error")
+		return models.Student{}, t.logger.ErrorMessage("database error")
 	}
 
 	return updatedStudent, nil
@@ -266,12 +264,12 @@ func (t *Students) DeleteStudent(id int) error {
 func (t *Students) DeleteBulkStudents(idn []int) ([]int, error) {
 	tx, err := t.db.Begin()
 	if err != nil {
-		t.logger.Logging.Errorf("Error starting transaction %v", err)
-		return nil, t.logger.ErrorMessage("databae error")
+		t.logger.Logging.Debugf("Error starting transaction %v", err)
+		return nil, t.logger.ErrorMessage("database error")
 	}
 	stmt, err := tx.Prepare("DELETE from students WHERE id = ?")
 	if err != nil {
-		t.logger.Logging.Errorf("delete error and preparing delete statement %v", err)
+		t.logger.Logging.Debugf("delete error and preparing delete statement %v", err)
 		tx.Rollback()
 		return nil, t.logger.ErrorMessage("error deleting")
 	}
@@ -282,35 +280,36 @@ func (t *Students) DeleteBulkStudents(idn []int) ([]int, error) {
 	for _, id := range idn {
 		res, err := stmt.Exec(id)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			t.logger.Logging.Debugf("error deleting student %v", err)
 			return nil, t.logger.ErrorMessage("error database deleting student")
 		}
 		rowsAffected, err := res.RowsAffected()
 		if err != nil {
-			tx.Rollback()
-			log.Println(err)
-			return nil, t.logger.ErrorLogger(err, "error retreiving delete result")
+			_ = tx.Rollback()
+			t.logger.Logging.Debugf("error retreive delete result from the database %v", err)
+			return nil, t.logger.ErrorMessage("database retreive delete result")
 		}
 		// if teacher was deleted then add ID to the deletedIDs slice
 		if rowsAffected > 0 {
 			deletedIds = append(deletedIds, id)
 		}
 		if rowsAffected < 1 {
-			tx.Rollback()
-			return nil, t.logger.ErrorMessage(
-				fmt.Sprintf("ID %d does not exists,  doing rollback...", id),
-			)
+			_ = tx.Rollback()
+			t.logger.Logging.Debugf("ID %d does not exists, doing rollback...", id)
+			return nil, t.logger.ErrorMessage("database error")
 		}
 	}
 	// commit changes
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err)
-		return nil, t.logger.ErrorLogger(err, "error commiting the transaction")
+		t.logger.Logging.Debugf("error commiting the transaction %v", err)
+		return nil, t.logger.ErrorMessage("database error")
 	}
 	if len(deletedIds) < 1 {
-		return nil, t.logger.ErrorMessage("none of the id exists")
+		t.logger.Logging.Debugf("none of the id exists %v", err)
+		return nil, t.logger.ErrorMessage("database error not exists")
 	}
 
 	return deletedIds, err
