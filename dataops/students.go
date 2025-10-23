@@ -53,6 +53,7 @@ func (t *Students) InsertStudents(st *models.Student) (int64, error) {
 
 func (t *Students) GetStudentByID(id int) (models.Student, error) {
 	var student models.Student
+
 	err := t.db.QueryRow("SELECT id, first_name, last_name ,email, class FROM students WHERE id = ?", id).
 		Scan(
 			&student.ID,
