@@ -130,9 +130,11 @@ func (t *Teachers) UpdateTeacher(id int, updatedTeacher models.Teacher) (models.
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			return models.Teacher{}, t.logger.ErrorLogger(err, "Teacher not found")
+			t.logger.Logging.Debugf("techer not found %v", err)
+			return models.Teacher{}, t.logger.ErrorLogger(err, "sql error")
 		} else {
-			return models.Teacher{}, t.logger.ErrorLogger(err, "unable to retreive data")
+			t.logger.Logging.Debugf("unable to retreive the data %v", err)
+			return models.Teacher{}, t.logger.ErrorLogger(err, "sql error")
 		}
 	}
 
@@ -150,7 +152,8 @@ func (t *Teachers) UpdateTeacher(id int, updatedTeacher models.Teacher) (models.
 		&updatedTeacher.ID,
 	)
 	if err != nil {
-		return models.Teacher{}, t.logger.ErrorLogger(err, "error updating teacher")
+		t.logger.Logging.Debugf("errr updating the teacher database %v", err)
+		return models.Teacher{}, t.logger.ErrorLogger(err, "database error")
 	}
 
 	return updatedTeacher, nil

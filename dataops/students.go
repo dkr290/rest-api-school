@@ -4,11 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net/http"
 	"reflect"
 	"strings"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/utils"
@@ -29,8 +27,8 @@ func NewStudentsDB(db *sql.DB, logger *logging.Logger) *Students {
 func (t *Students) InsertStudents(st *models.Student) (int64, error) {
 	stmt, err := t.db.Prepare(utils.GenereateInsertQuery(models.Student{}, "students"))
 	if err != nil {
-		t.logger.Logging.Errorf("error prepare insert statement %v", err)
-		return 0, t.logger.ErrorLogger(err, "error prepare insert statement")
+		t.logger.Logging.Debugf("error prepare insert statement %v", err)
+		return 0, t.logger.ErrorLogger(err, "sql database insert student error ")
 	}
 	defer stmt.Close()
 	values := utils.GetStructValues(st)
@@ -38,15 +36,15 @@ func (t *Students) InsertStudents(st *models.Student) (int64, error) {
 	sqlResp, err := stmt.Exec(values...)
 	if err != nil {
 
-		t.logger.Logging.Errorf("error insert teacher to the database %v", err)
-		return 0, t.logger.ErrorLogger(err, "error inseart teacher to the database")
+		t.logger.Logging.Debugf("error insert student to the database %v", err)
+		return 0, t.logger.ErrorLogger(err, "sql database error")
 	}
 
 	lastID, err := sqlResp.LastInsertId()
 	if err != nil {
 
-		t.logger.Logging.Errorf("eror get last insert teacher %v", err)
-		return 0, t.logger.ErrorLogger(err, "error get last insert teacher")
+		t.logger.Logging.Debugf("eror get last insert teacher %v", err)
+		return 0, t.logger.ErrorLogger(err, "sql database error")
 	}
 	return lastID, nil
 }
@@ -64,9 +62,11 @@ func (t *Students) GetStudentByID(id int) (models.Student, error) {
 			&student.Class,
 		)
 	if err == sql.ErrNoRows {
-		return models.Student{}, fmt.Errorf("student not found %v", err)
+		t.logger.Logging.Debugf("error student not found %v", err)
+		return models.Student{}, t.logger.ErrorLogger(err, "sql student error")
 	} else if err != nil {
-		return models.Student{}, fmt.Errorf("error quering the database %v", err)
+		t.logger.Logging.Debugf("error quring the database %v", err)
+		return models.Student{}, t.logger.ErrorLogger(err, "sql student error")
 	}
 	return student, nil
 }
@@ -109,7 +109,8 @@ func (t *Students) GetAllStudents(params map[string]string, sortBy []string) (*s
 
 	rows, err := t.db.Query(query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("database query error %v", err)
+		t.logger.Logging.Debugf("error retreiving the data %v", err)
+		return nil, t.logger.ErrorLogger(err, "error retrtreiving data")
 	}
 	return rows, nil
 }
@@ -130,9 +131,11 @@ func (t *Students) UpdateStudent(id int, updatedStudent models.Student) (models.
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			return models.Student{}, huma.Error500InternalServerError("Student not found", err)
+			t.logger.Logging.Debugf("student not found %v", err)
+			return models.Student{}, t.logger.ErrorLogger(err, "database retreive data error")
 		} else {
-			return models.Student{}, huma.NewError(http.StatusNotFound, "unable to retreive data", err)
+			t.logger.Logging.Debugf("unable to retreive the data %v", err)
+			return models.Student{}, t.logger.ErrorLogger(err, "sql error")
 		}
 	}
 
@@ -149,7 +152,8 @@ func (t *Students) UpdateStudent(id int, updatedStudent models.Student) (models.
 		&updatedStudent.ID,
 	)
 	if err != nil {
-		return models.Student{}, huma.Error500InternalServerError("Error updating student", err)
+		t.logger.Logging.Debugf("error updating the student database %v", err)
+		return models.Student{}, t.logger.ErrorLogger(err, "database error")
 	}
 
 	return updatedStudent, nil
@@ -171,9 +175,11 @@ func (t *Students) PatchiStudent(id int, updatedStudent models.Student) (models.
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			return models.Student{}, huma.Error500InternalServerError("Student not found", err)
+			t.logger.Logging.Debugf("Student not found %v", err)
+			return models.Student{}, t.logger.ErrorMessage("database error")
 		} else {
-			return models.Student{}, huma.NewError(http.StatusNotFound, "unable to retreive data", err)
+			t.logger.Logging.Debugf("unable to retreive data %v", err)
+			return models.Student{}, t.logger.ErrorMessage("database error")
 		}
 	}
 
@@ -229,7 +235,8 @@ func (t *Students) PatchiStudent(id int, updatedStudent models.Student) (models.
 		existingStudent.ID,
 	)
 	if err != nil {
-		return models.Student{}, huma.Error500InternalServerError("Error updating student", err)
+		t.logger.Logging.Debugf("error updating student %v", err)
+		return models.Student{}, t.logger.ErrorMessage("database error")
 	}
 
 	return existingStudent, nil
@@ -238,24 +245,18 @@ func (t *Students) PatchiStudent(id int, updatedStudent models.Student) (models.
 func (t *Students) DeleteStudent(id int) error {
 	result, err := t.db.Exec("DELETE from students WHERE id = ?", id)
 	if err != nil {
-		return huma.Error500InternalServerError(
-			"Error deleting student",
-			err,
-		)
+		t.logger.Logging.Debugf("error deleting student %v", err)
+		return t.logger.ErrorMessage("database delete error")
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return huma.Error500InternalServerError(
-			"Error retreiving delete result",
-			err,
-		)
+		t.logger.Logging.Debugf("error retreiving delete result %v", err)
+		return t.logger.ErrorMessage("error database delete operation")
 	}
 
 	if rowsAffected == 0 {
-		return huma.Error404NotFound(
-			"Student not found",
-			err,
-		)
+		t.logger.Logging.Debugf("student not found %v", err)
+		return t.logger.ErrorMessage("student not found")
 	}
 
 	return nil
@@ -265,13 +266,13 @@ func (t *Students) DeleteBulkStudents(idn []int) ([]int, error) {
 	tx, err := t.db.Begin()
 	if err != nil {
 		t.logger.Logging.Errorf("Error starting transaction %v", err)
-		return nil, t.logger.ErrorLogger(err, "Error starting Transaction")
+		return nil, t.logger.ErrorMessage("databae error")
 	}
 	stmt, err := tx.Prepare("DELETE from students WHERE id = ?")
 	if err != nil {
-		log.Println(err)
+		t.logger.Logging.Errorf("delete error and preparing delete statement %v", err)
 		tx.Rollback()
-		return nil, t.logger.ErrorLogger(err, "error preparing delete statement")
+		return nil, t.logger.ErrorMessage("error deleting")
 	}
 	defer stmt.Close()
 
@@ -281,8 +282,8 @@ func (t *Students) DeleteBulkStudents(idn []int) ([]int, error) {
 		res, err := stmt.Exec(id)
 		if err != nil {
 			tx.Rollback()
-			t.logger.Logging.Errorf("error deleting teacher %v", err)
-			return nil, t.logger.ErrorLogger(err, "error deleting teacher")
+			t.logger.Logging.Debugf("error deleting student %v", err)
+			return nil, t.logger.ErrorMessage("error database deleting student")
 		}
 		rowsAffected, err := res.RowsAffected()
 		if err != nil {
