@@ -15,10 +15,10 @@ import (
 
 type TeacherHandlers struct {
 	mutex      sync.Mutex
-	teachersDB dataops.DatabaseInf
+	teachersDB dataops.TeachersInf
 }
 
-func NewTeachersHandler(tdb dataops.DatabaseInf) *TeacherHandlers {
+func NewTeachersHandler(tdb dataops.TeachersInf) *TeacherHandlers {
 	return &TeacherHandlers{
 		teachersDB: tdb,
 	}

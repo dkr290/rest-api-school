@@ -28,8 +28,8 @@ func NewTeachersDB(db *sql.DB, logger *logging.Logger) *Teachers {
 func (t *Teachers) InsertTeachers(tm *models.Teacher) (int64, error) {
 	stmt, err := t.db.Prepare(utils.GenereateInsertQuery(models.Teacher{}, "teachers"))
 	if err != nil {
-		t.logger.Logging.Errorf("error prepare insert statement %v", err)
-		return 0, t.logger.ErrorLogger(err, "error prepare insert statement")
+		t.logger.Logging.Debugf("error prepare insert statement %v", err)
+		return 0, t.logger.ErrorMessage("error database insert statement")
 	}
 	defer stmt.Close()
 
@@ -37,12 +37,12 @@ func (t *Teachers) InsertTeachers(tm *models.Teacher) (int64, error) {
 	sqlResp, err := stmt.Exec(values...)
 	if err != nil {
 		t.logger.Logging.Errorf("error insert teacher to the database %v", err)
-		return 0, t.logger.ErrorLogger(err, "error inseart teacher to the database")
+		return 0, t.logger.ErrorMessage("error database teacher insert")
 	}
 	lastID, err := sqlResp.LastInsertId()
 	if err != nil {
 		t.logger.Logging.Errorf("eror get last insert teacher %v", err)
-		return 0, t.logger.ErrorLogger(err, "error get last insert teacher")
+		return 0, t.logger.ErrorMessage("error database")
 	}
 	return lastID, nil
 }
@@ -59,11 +59,11 @@ func (t *Teachers) GetTeacherByID(id int) (models.Teacher, error) {
 			&teacher.Subject,
 		)
 	if err == sql.ErrNoRows {
-		t.logger.Logging.Error("teacher not found")
-		return models.Teacher{}, t.logger.ErrorLogger(err, "teacher not found")
+		t.logger.Logging.Debugf("teacher not found %v", err)
+		return models.Teacher{}, t.logger.ErrorMessage("teacher not found")
 	} else if err != nil {
-		t.logger.Logging.Errorf("error quering the database %v", err)
-		return models.Teacher{}, t.logger.ErrorLogger(err, "error quering the database")
+		t.logger.Logging.Debugf("error quering the database %v", err)
+		return models.Teacher{}, t.logger.ErrorMessage("error quering the database error")
 	}
 	return teacher, nil
 }
@@ -107,8 +107,8 @@ func (t *Teachers) GetAllTeachers(params map[string]string, sortBy []string) (*s
 
 	rows, err := t.db.Query(query, args...)
 	if err != nil {
-		t.logger.Logging.Errorf("error retreiving data %v", err)
-		return nil, t.logger.ErrorLogger(err, "error retreiving data")
+		t.logger.Logging.Debugf("error retreiving data %v", err)
+		return nil, t.logger.ErrorMessage("error retreiving data")
 	}
 	return rows, nil
 }
@@ -131,10 +131,10 @@ func (t *Teachers) UpdateTeacher(id int, updatedTeacher models.Teacher) (models.
 	if err != nil {
 		if err != sql.ErrNoRows {
 			t.logger.Logging.Debugf("techer not found %v", err)
-			return models.Teacher{}, t.logger.ErrorLogger(err, "sql error")
+			return models.Teacher{}, t.logger.ErrorMessage("sql error")
 		} else {
 			t.logger.Logging.Debugf("unable to retreive the data %v", err)
-			return models.Teacher{}, t.logger.ErrorLogger(err, "sql error")
+			return models.Teacher{}, t.logger.ErrorMessage("sql error")
 		}
 	}
 
@@ -153,7 +153,7 @@ func (t *Teachers) UpdateTeacher(id int, updatedTeacher models.Teacher) (models.
 	)
 	if err != nil {
 		t.logger.Logging.Debugf("errr updating the teacher database %v", err)
-		return models.Teacher{}, t.logger.ErrorLogger(err, "database error")
+		return models.Teacher{}, t.logger.ErrorMessage("error teacher database error")
 	}
 
 	return updatedTeacher, nil
@@ -177,10 +177,10 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 	if err != nil {
 		if err != sql.ErrNoRows {
 			t.logger.Logging.Warnf("teacher not found %v", err)
-			return models.Teacher{}, t.logger.ErrorLogger(err, "Teacher not found")
+			return models.Teacher{}, t.logger.ErrorMessage("Teacher not found")
 		} else {
-			t.logger.Logging.Errorf("unable to retreive data %v", err)
-			return models.Teacher{}, t.logger.ErrorLogger(err, "unable to retreive data")
+			t.logger.Logging.Debugf("unable to retreive data %v", err)
+			return models.Teacher{}, t.logger.ErrorMessage("unable to retreive data")
 		}
 	}
 
@@ -237,8 +237,8 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 		existingTeacher.ID,
 	)
 	if err != nil {
-		t.logger.Logging.Errorf("Error updating teacher %v", err)
-		return models.Teacher{}, t.logger.ErrorLogger(err, "Error updating teacher")
+		t.logger.Logging.Debugf("Error updating teacher %v", err)
+		return models.Teacher{}, t.logger.ErrorMessage("Error updating teacher")
 	}
 
 	return existingTeacher, nil
@@ -247,18 +247,18 @@ func (t *Teachers) PatchTeacher(id int, updatedTeacher models.Teacher) (models.T
 func (t *Teachers) DeleteTeacher(id int) error {
 	result, err := t.db.Exec("DELETE from teachers WHERE id = ?", id)
 	if err != nil {
-		t.logger.Logging.Errorf("error deleting teacher -  %v", err)
-		return t.logger.ErrorLogger(err, "Error deleting teacher")
+		t.logger.Logging.Debugf("error deleting teacher -  %v", err)
+		return t.logger.ErrorMessage("Error deleting teacher")
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		t.logger.Logging.Errorf("error retreiving deleted teacher %v", err)
-		return t.logger.ErrorLogger(err, "Error retreiving deleted teacher")
+		t.logger.Logging.Debugf("error retreiving deleted teacher %v", err)
+		return t.logger.ErrorMessage("Error retreiving deleted teacher")
 	}
 
 	if rowsAffected == 0 {
-		t.logger.Logging.Errorf("teacher not found %v", err)
-		return t.logger.ErrorLogger(err, "Teacher not found")
+		t.logger.Logging.Debugf("teacher not found %v", err)
+		return t.logger.ErrorMessage("Teacher not found")
 	}
 
 	return nil
@@ -272,9 +272,9 @@ func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 	}
 	stmt, err := tx.Prepare("DELETE from teachers WHERE id = ?")
 	if err != nil {
-		log.Println(err)
+		t.logger.Logging.Debugf("error preparing delete statement %v", err)
 		tx.Rollback()
-		return nil, t.logger.ErrorLogger(err, "error preparing delete statement")
+		return nil, t.logger.ErrorMessage("error preparing delete statement")
 	}
 	defer stmt.Close()
 
@@ -285,30 +285,30 @@ func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 		if err != nil {
 			tx.Rollback()
 			t.logger.Logging.Errorf("error deleting teacher %v", err)
-			return nil, t.logger.ErrorLogger(err, "error deleting teacher")
+			return nil, t.logger.ErrorMessage("error deleting teacher")
 		}
 		rowsAffected, err := res.RowsAffected()
 		if err != nil {
-			tx.Rollback()
+			t.logger.Logging.Debugf("error retreiving delete result %v", err)
 			log.Println(err)
-			return nil, t.logger.ErrorLogger(err, "error retreiving delete result")
+			return nil, t.logger.ErrorMessage("error retreiving delete result")
 		}
 		// if teacher was deleted then add ID to the deletedIDs slice
 		if rowsAffected > 0 {
 			deletedIds = append(deletedIds, id)
 		}
 		if rowsAffected < 1 {
+			t.logger.Logging.Debugf("ID %d does not exists", id)
 			tx.Rollback()
-			return nil, t.logger.ErrorMessage(
-				fmt.Sprintf("ID %d does not exists,  doing rollback...", id),
-			)
+			return nil, t.logger.ErrorMessage("ID does not exists,  doing rollback...")
+
 		}
 	}
 	// commit changes
 	err = tx.Commit()
 	if err != nil {
-		log.Println(err)
-		return nil, t.logger.ErrorLogger(err, "error commiting the transaction")
+		t.logger.Logging.Debugf("error commiting the transaction %v", err)
+		return nil, t.logger.ErrorMessage("error commiting the transaction")
 	}
 	if len(deletedIds) < 1 {
 		return nil, t.logger.ErrorMessage("none of the id exists")
