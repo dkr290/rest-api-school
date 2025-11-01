@@ -20,6 +20,14 @@ func Router(db *sql.DB) *http.ServeMux {
 
 	api := humago.New(router, huma.DefaultConfig("My API", "1.0.0"))
 
+	huma.Get(api, "/", teacherHandler.RootHandler)
+
+	routesTeachers(api, teacherHandler)
+
+	return router
+}
+
+func routesTeachers(api huma.API, teacherHandler *handlers.TeacherHandlers) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-teacher",
 		Method:      http.MethodGet,
@@ -28,8 +36,6 @@ func Router(db *sql.DB) *http.ServeMux {
 		Description: "Get a teacher by ID.",
 		Tags:        []string{"Teachers"},
 	}, teacherHandler.TeacherGet)
-
-	huma.Get(api, "/", teacherHandler.RootHandler)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "post-teachers",
@@ -93,5 +99,4 @@ func Router(db *sql.DB) *http.ServeMux {
 		Description: "Delete bulk many teachers fields.",
 		Tags:        []string{"Teachers"},
 	}, teacherHandler.DeleteTeachersHandler)
-	return router
 }
