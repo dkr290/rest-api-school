@@ -16,10 +16,22 @@ func Router(db *sql.DB) *http.ServeMux {
 	llogger := logging.Init(false)
 	router := http.NewServeMux()
 	teachersDB := dataops.NewTeachersDB(db, llogger)
+	studentsDB := dataops.NewStudentsDB(db, llogger)
 	teacherHandler := handlers.NewTeachersHandler(teachersDB)
+	studetnsHandler := handlers.NewStudentsHandler(studentsDB)
 
 	api := humago.New(router, huma.DefaultConfig("My API", "1.0.0"))
 
+	huma.Get(api, "/", teacherHandler.RootHandler)
+
+	routesTeachers(api, teacherHandler)
+
+	routesStudents(api, studetnsHandler)
+
+	return router
+}
+
+func routesTeachers(api huma.API, teacherHandler *handlers.TeacherHandlers) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-teacher",
 		Method:      http.MethodGet,
@@ -28,8 +40,6 @@ func Router(db *sql.DB) *http.ServeMux {
 		Description: "Get a teacher by ID.",
 		Tags:        []string{"Teachers"},
 	}, teacherHandler.TeacherGet)
-
-	huma.Get(api, "/", teacherHandler.RootHandler)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "post-teachers",
@@ -93,5 +103,78 @@ func Router(db *sql.DB) *http.ServeMux {
 		Description: "Delete bulk many teachers fields.",
 		Tags:        []string{"Teachers"},
 	}, teacherHandler.DeleteTeachersHandler)
-	return router
+}
+
+func routesStudents(api huma.API, studentHandler *handlers.StudentHandlers) {
+	huma.Register(api, huma.Operation{
+		OperationID: "get-student",
+		Method:      http.MethodGet,
+		Path:        "/students/{id}",
+		Summary:     "Get a student",
+		Description: "Get a student by ID.",
+		Tags:        []string{"Students"},
+	}, studentHandler.StudentGet)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "post-students",
+		Method:      http.MethodPost,
+		Path:        "/students",
+		Summary:     "Create students",
+		Description: "Create students.",
+		Tags:        []string{"Students"},
+	}, studentHandler.StudentsAdd)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "get-students",
+		Method:      http.MethodGet,
+		Path:        "/students",
+		Summary:     "Get all students",
+		Description: "Get all students or with filtering.",
+		Tags:        []string{"Students"},
+	}, studentHandler.StudentsGet)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "update-student",
+		Method:      http.MethodPut,
+		Path:        "/students/{id}",
+		Summary:     "Update all fields of a student",
+		Description: "Update all fields of a student mandatory.",
+		Tags:        []string{"Students"},
+	}, studentHandler.UpdateStudentHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "patch-student",
+		Method:      http.MethodPatch,
+		Path:        "/students/{id}",
+		Summary:     "Patch student",
+		Description: "Patch some student fields only.",
+		Tags:        []string{"Students"},
+	}, studentHandler.PatchStudentHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "delete-student",
+		Method:      http.MethodDelete,
+		Path:        "/students/{id}",
+		Summary:     "Delete Student by ID",
+		Description: "Delete a student record by ID.",
+		Tags:        []string{"Students"},
+	}, studentHandler.DeleteStudentHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "patch-students",
+		Method:      http.MethodPatch,
+		Path:        "/students",
+		Summary:     "Patch students",
+		Description: "Patch bulk many students fields.",
+		Tags:        []string{"Students"},
+	}, studentHandler.PatchStudentsHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "delete-students",
+		Method:      http.MethodDelete,
+		Path:        "/students",
+		Summary:     "Delete students",
+		Description: "Delete bulk many students fields.",
+		Tags:        []string{"Students"},
+	}, studentHandler.DeleteStudentsHandler)
 }

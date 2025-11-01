@@ -7,3 +7,34 @@ type Student struct {
 	Email     string `json:"email,omitempty"`
 	Class     string `json:"class,omitempty"`
 }
+
+type StudentInput struct {
+	FirstName string `json:"first_name" required:"true" minLength:"2" maxLength:"255" example:"Tom"                 doc:"First name of the teacher"`
+	LastName  string `json:"last_name"  required:"true" minLength:"2" maxLength:"255" example:"Last"                doc:"Last name of the techer"`
+	Class     string `json:"class"      required:"true" minLength:"2" maxLength:"50"  example:"10B"                 doc:"The class of the teacher"`
+	Email     string `json:"email"      required:"true"               maxLength:"50"  example:"teacher@example.com" doc:"Email"`
+}
+
+type StudentsQueryInput struct {
+	FirstName string   `query:"first_name"`
+	LastName  string   `query:"last_name"`
+	Class     string   `query:"class"`
+	Email     string   `query:"email"`
+	SortBy    []string `query:"sort_by"    example:"first_name:asc" doc:"Order by asc or desc of the records"`
+}
+
+type StudentUpdateBody struct {
+	ID        int    `json:"id"`
+	FirstName string `json:"first_name" example:"Alice"          doc:"First name of the teacher"`
+	LastName  string `json:"last_name"  example:"Brown"          doc:"Last name of the techer"`
+	Class     string `json:"class"      example:"9C"             doc:"The class of the teacher"`
+	Email     string `json:"email"      example:"ac@example.net" doc:"Email"`
+}
+
+type StudentPatchBody struct {
+	ID        int    `json:"id"`
+	FirstName string `json:"first_name,omitempty" example:"Alice"           doc:"First name of the teacher"`
+	LastName  string `json:"last_name,omitempty"  example:"Brown"           doc:"Last name of the techer"`
+	Email     string `json:"email,omitempty"      example:"ac@example.com " doc:"Email"`
+	Class     string `json:"class,omitempty"      example:"11C"             doc:"The class of the teacher"`
+}

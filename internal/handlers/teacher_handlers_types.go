@@ -11,7 +11,7 @@ type GreetingOutput struct {
 
 type TeachersInput struct {
 	Body struct {
-		Teachers []models.TeacherInput `json:"teachers" doc:"Teachers"`
+		Teachers []models.Teacher `json:"teachers" doc:"Teachers"`
 	}
 }
 
