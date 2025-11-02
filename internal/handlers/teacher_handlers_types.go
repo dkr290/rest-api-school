@@ -11,7 +11,7 @@ type GreetingOutput struct {
 
 type TeachersInput struct {
 	Body struct {
-		Teachers []models.Teacher `json:"teachers" doc:"Teachers"`
+		Teachers []models.TeacherInput `json:"teachers" doc:"Teachers"`
 	}
 }
 
@@ -73,5 +73,17 @@ type DeleteTeachersOutput struct {
 	Body struct {
 		Status string `json:"status"`
 		ID     []int  `json:"id"`
+	}
+}
+
+type TeacherIDInput struct {
+	ID int `path:"id"`
+}
+
+type TeacherStatusOutput struct {
+	Body struct {
+		Status string           `json:"status"`
+		Count  int              `json:"count"`
+		Data   []models.Student `json:"data"`
 	}
 }

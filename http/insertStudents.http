@@ -1,0 +1,532 @@
+### 
+
+POST http://localhost:8082/students HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "students": [
+    {
+      "class": "10C",
+      "email": "michael.brown3@example.com",
+      "first_name": "Michael",
+      "last_name": "Brown"
+    },
+    {
+      "class": "11A",
+      "email": "emily.davis4@example.com",
+      "first_name": "Emily",
+      "last_name": "Davis"
+    },
+    {
+      "class": "11B",
+      "email": "daniel.johnson5@example.com",
+      "first_name": "Daniel",
+      "last_name": "Johnson"
+    },
+    {
+      "class": "12A",
+      "email": "sophia.wilson6@example.com",
+      "first_name": "Sophia",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "12B",
+      "email": "oliver.jones7@example.com",
+      "first_name": "Oliver",
+      "last_name": "Jones"
+    },
+    {
+      "class": "10A",
+      "email": "emma.garcia8@example.com",
+      "first_name": "Emma",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "10B",
+      "email": "liam.martinez9@example.com",
+      "first_name": "Liam",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "10C",
+      "email": "ava.hernandez10@example.com",
+      "first_name": "Ava",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "11A",
+      "email": "noah.lopez11@example.com",
+      "first_name": "Noah",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "11B",
+      "email": "isabella.gonzalez12@example.com",
+      "first_name": "Isabella",
+      "last_name": "Gonzalez"
+    },
+    {
+      "class": "12A",
+      "email": "lucas.perez13@example.com",
+      "first_name": "Lucas",
+      "last_name": "Perez"
+    },
+    {
+      "class": "12B",
+      "email": "mia.wilson14@example.com",
+      "first_name": "Mia",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "10A",
+      "email": "elijah.rodriguez15@example.com",
+      "first_name": "Elijah",
+      "last_name": "Rodriguez"
+    },
+    {
+      "class": "10B",
+      "email": "amelia.martinez16@example.com",
+      "first_name": "Amelia",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "10C",
+      "email": "mason.garcia17@example.com",
+      "first_name": "Mason",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "11A",
+      "email": "harper.martinez18@example.com",
+      "first_name": "Harper",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "11B",
+      "email": "logan.anderson19@example.com",
+      "first_name": "Logan",
+      "last_name": "Anderson"
+    },
+    {
+      "class": "12A",
+      "email": "aria.hernandez20@example.com",
+      "first_name": "Aria",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "12B",
+      "email": "ethan.lopez21@example.com",
+      "first_name": "Ethan",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "10A",
+      "email": "abigail.smith22@example.com",
+      "first_name": "Abigail",
+      "last_name": "Smith"
+    },
+    {
+      "class": "10B",
+      "email": "james.davis23@example.com",
+      "first_name": "James",
+      "last_name": "Davis"
+    },
+    {
+      "class": "10C",
+      "email": "charlotte.brown24@example.com",
+      "first_name": "Charlotte",
+      "last_name": "Brown"
+    },
+    {
+      "class": "11A",
+      "email": "alexander.wilson25@example.com",
+      "first_name": "Alexander",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "11B",
+      "email": "sophia.johnson26@example.com",
+      "first_name": "Sophia",
+      "last_name": "Johnson"
+    },
+    {
+      "class": "12A",
+      "email": "benjamin.martinez27@example.com",
+      "first_name": "Benjamin",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "12B",
+      "email": "evelyn.garcia28@example.com",
+      "first_name": "Evelyn",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "10A",
+      "email": "aiden.rodriguez29@example.com",
+      "first_name": "Aiden",
+      "last_name": "Rodriguez"
+    },
+    {
+      "class": "10B",
+      "email": "grace.hernandez30@example.com",
+      "first_name": "Grace",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "10C",
+      "email": "lucas.perez31@example.com",
+      "first_name": "Lucas",
+      "last_name": "Perez"
+    },
+    {
+      "class": "11A",
+      "email": "sofia.lopez32@example.com",
+      "first_name": "Sofia",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "11B",
+      "email": "jack.gonzalez33@example.com",
+      "first_name": "Jack",
+      "last_name": "Gonzalez"
+    },
+    {
+      "class": "12A",
+      "email": "scarlett.jones34@example.com",
+      "first_name": "Scarlett",
+      "last_name": "Jones"
+    },
+    {
+      "class": "12B",
+      "email": "henry.wilson35@example.com",
+      "first_name": "Henry",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "10A",
+      "email": "avery.martinez36@example.com",
+      "first_name": "Avery",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "10B",
+      "email": "jackson.garcia37@example.com",
+      "first_name": "Jackson",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "10C",
+      "email": "madison.rodriguez38@example.com",
+      "first_name": "Madison",
+      "last_name": "Rodriguez"
+    },
+    {
+      "class": "11A",
+      "email": "sebastian.hernandez39@example.com",
+      "first_name": "Sebastian",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "11B",
+      "email": "lily.lopez40@example.com",
+      "first_name": "Lily",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "12A",
+      "email": "samuel.gonzalez41@example.com",
+      "first_name": "Samuel",
+      "last_name": "Gonzalez"
+    },
+    {
+      "class": "12B",
+      "email": "chloe.jones42@example.com",
+      "first_name": "Chloe",
+      "last_name": "Jones"
+    },
+    {
+      "class": "10A",
+      "email": "david.wilson43@example.com",
+      "first_name": "David",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "10B",
+      "email": "zoey.martinez44@example.com",
+      "first_name": "Zoey",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "10C",
+      "email": "joseph.garcia45@example.com",
+      "first_name": "Joseph",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "11A",
+      "email": "layla.rodriguez46@example.com",
+      "first_name": "Layla",
+      "last_name": "Rodriguez"
+    },
+    {
+      "class": "11B",
+      "email": "owen.hernandez47@example.com",
+      "first_name": "Owen",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "12A",
+      "email": "riley.lopez48@example.com",
+      "first_name": "Riley",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "12B",
+      "email": "gabriel.gonzalez49@example.com",
+      "first_name": "Gabriel",
+      "last_name": "Gonzalez"
+    },
+    {
+      "class": "10A",
+      "email": "hannah.jones50@example.com",
+      "first_name": "Hannah",
+      "last_name": "Jones"
+    },
+    {
+      "class": "10B",
+      "email": "carter.wilson51@example.com",
+      "first_name": "Carter",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "10C",
+      "email": "eleanor.martinez52@example.com",
+      "first_name": "Eleanor",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "11A",
+      "email": "luke.garcia53@example.com",
+      "first_name": "Luke",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "11B",
+      "email": "aubrey.rodriguez54@example.com",
+      "first_name": "Aubrey",
+      "last_name": "Rodriguez"
+    },
+    {
+      "class": "12A",
+      "email": "isaac.hernandez55@example.com",
+      "first_name": "Isaac",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "12B",
+      "email": "zoe.lopez56@example.com",
+      "first_name": "Zoe",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "10A",
+      "email": "eli.gonzalez57@example.com",
+      "first_name": "Eli",
+      "last_name": "Gonzalez"
+    },
+    {
+      "class": "10B",
+      "email": "natalie.jones58@example.com",
+      "first_name": "Natalie",
+      "last_name": "Jones"
+    },
+    {
+      "class": "10C",
+      "email": "hudson.wilson59@example.com",
+      "first_name": "Hudson",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "11A",
+      "email": "addison.martinez60@example.com",
+      "first_name": "Addison",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "11B",
+      "email": "jacob.garcia61@example.com",
+      "first_name": "Jacob",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "12A",
+      "email": "brooklyn.rodriguez62@example.com",
+      "first_name": "Brooklyn",
+      "last_name": "Rodriguez"
+    },
+    {
+      "class": "12B",
+      "email": "thomas.hernandez63@example.com",
+      "first_name": "Thomas",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "10A",
+      "email": "savannah.lopez64@example.com",
+      "first_name": "Savannah",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "10B",
+      "email": "connor.gonzalez65@example.com",
+      "first_name": "Connor",
+      "last_name": "Gonzalez"
+    },
+    {
+      "class": "10C",
+      "email": "ella.jones66@example.com",
+      "first_name": "Ella",
+      "last_name": "Jones"
+    },
+    {
+      "class": "11A",
+      "email": "caleb.wilson67@example.com",
+      "first_name": "Caleb",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "11B",
+      "email": "victoria.martinez68@example.com",
+      "first_name": "Victoria",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "12A",
+      "email": "william.garcia69@example.com",
+      "first_name": "William",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "12B",
+      "email": "aurora.rodriguez70@example.com",
+      "first_name": "Aurora",
+      "last_name": "Rodriguez"
+    },
+    {
+      "class": "10A",
+      "email": "isaiah.hernandez71@example.com",
+      "first_name": "Isaiah",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "10B",
+      "email": "scarlett.lopez72@example.com",
+      "first_name": "Scarlett",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "10C",
+      "email": "ryan.gonzalez73@example.com",
+      "first_name": "Ryan",
+      "last_name": "Gonzalez"
+    },
+    {
+      "class": "11A",
+      "email": "nora.jones74@example.com",
+      "first_name": "Nora",
+      "last_name": "Jones"
+    },
+    {
+      "class": "11B",
+      "email": "julian.wilson75@example.com",
+      "first_name": "Julian",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "12A",
+      "email": "hazel.martinez76@example.com",
+      "first_name": "Hazel",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "12B",
+      "email": "aaron.garcia77@example.com",
+      "first_name": "Aaron",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "10A",
+      "email": "luna.rodriguez78@example.com",
+      "first_name": "Luna",
+      "last_name": "Rodriguez"
+    },
+    {
+      "class": "10B",
+      "email": "nathan.hernandez79@example.com",
+      "first_name": "Nathan",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "10C",
+      "email": "caroline.lopez80@example.com",
+      "first_name": "Caroline",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "11A",
+      "email": "christopher.gonzalez81@example.com",
+      "first_name": "Christopher",
+      "last_name": "Gonzalez"
+    },
+    {
+      "class": "11B",
+      "email": "samantha.jones82@example.com",
+      "first_name": "Samantha",
+      "last_name": "Jones"
+    },
+    {
+      "class": "12A",
+      "email": "andrew.wilson83@example.com",
+      "first_name": "Andrew",
+      "last_name": "Wilson"
+    },
+    {
+      "class": "12B",
+      "email": "penelope.martinez84@example.com",
+      "first_name": "Penelope",
+      "last_name": "Martinez"
+    },
+    {
+      "class": "10A",
+      "email": "levi.garcia85@example.com",
+      "first_name": "Levi",
+      "last_name": "Garcia"
+    },
+    {
+      "class": "10B",
+      "email": "violet.rodriguez86@example.com",
+      "first_name": "Violet",
+      "last_name": "Rodriguez"
+    },
+    {
+      "class": "10C",
+      "email": "hunter.hernandez87@example.com",
+      "first_name": "Hunter",
+      "last_name": "Hernandez"
+    },
+    {
+      "class": "11A",
+      "email": "stella.lopez88@example.com",
+      "first_name": "Stella",
+      "last_name": "Lopez"
+    },
+    {
+      "class": "11B",
+      "email": "christian.gonzalez89@example.com",
+      "first_name": "Christian",
+      "last_name": "Gonzalez"
+    }
+  ]
+}

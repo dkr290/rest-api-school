@@ -287,3 +287,21 @@ func (h *TeacherHandlers) DeleteTeachersHandler(
 
 	return resp, nil
 }
+
+func (h *TeacherHandlers) GetStudentsByTeacherId(
+	ctx context.Context,
+	input *TeacherIDInput,
+) (*TeacherStatusOutput, error) {
+	teacherID := input.ID
+
+	students, err := h.teachersDB.GetStudentsByTeacherID(teacherID)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("sql error", err)
+	}
+	resp := &TeacherStatusOutput{}
+	resp.Body.Status = "Success"
+	resp.Body.Count = len(students)
+	resp.Body.Data = students
+
+	return resp, err
+}

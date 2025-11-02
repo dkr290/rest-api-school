@@ -12,8 +12,8 @@ import (
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
 )
 
-func Router(db *sql.DB) *http.ServeMux {
-	llogger := logging.Init(false)
+func Router(db *sql.DB, debugFlag bool) *http.ServeMux {
+	llogger := logging.Init(debugFlag)
 	router := http.NewServeMux()
 	teachersDB := dataops.NewTeachersDB(db, llogger)
 	studentsDB := dataops.NewStudentsDB(db, llogger)
@@ -94,6 +94,15 @@ func routesTeachers(api huma.API, teacherHandler *handlers.TeacherHandlers) {
 		Description: "Patch bulk many teachers fields.",
 		Tags:        []string{"Teachers"},
 	}, teacherHandler.PatchTeachersHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "students-by-teacher-id",
+		Method:      http.MethodGet,
+		Path:        "/teachers/{id}/students",
+		Summary:     "Get students by id of the teacher",
+		Description: "Get students by teacher id",
+		Tags:        []string{"Teachers"},
+	}, teacherHandler.GetStudentsByTeacherId)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-teachers",
