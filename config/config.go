@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"os"
+	"strconv"
 )
 
 type Config struct {
@@ -12,6 +13,7 @@ type Config struct {
 	DBDatabase string
 	DBPort     string
 	DBHost     string
+	Debug      bool
 }
 
 func LoadConfig() *Config {
@@ -37,6 +39,7 @@ func (c *Config) GetFlags() {
 		"3306",
 		"Database port for Mariadb database connection",
 	)
+	flag.BoolVar(&c.Debug, "debug", false, "Using debug true or false")
 	flag.Parse()
 
 	if dbhost := getEnv("DATABASE_HOST"); dbhost != "" {
@@ -58,6 +61,11 @@ func (c *Config) GetFlags() {
 	}
 	if dbport := getEnv("DATABASE_PORT"); dbport != "" {
 		c.DBPort = dbport
+	}
+	if debugFl := getEnv("DEBUG_FL"); debugFl != "" {
+		if debug, err := strconv.ParseBool(debugFl); err == nil {
+			c.Debug = debug
+		}
 	}
 }
 
