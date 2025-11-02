@@ -14,6 +14,7 @@ type TeachersInf interface {
 	PatchTeacher(int, models.Teacher) (models.Teacher, error)
 	DeleteTeacher(int) error
 	DeleteBulkTeachers([]int) ([]int, error)
+	GetStudentsByTeacherID(int) ([]models.Student, error)
 }
 type StudentInf interface {
 	InsertStudents(*models.Student) (int64, error)

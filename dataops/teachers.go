@@ -316,3 +316,36 @@ func (t *Teachers) DeleteBulkTeachers(idn []int) ([]int, error) {
 
 	return deletedIds, err
 }
+
+func (t *Teachers) GetStudentsByTeacherID(id int) ([]models.Student, error) {
+	query := `SELECT id,first_name,last_name,email,class FROM students where class=(SELECT class from teachers WHERE id = ?)`
+
+	var students []models.Student
+	rows, err := t.db.Query(query, id)
+	if err != nil {
+		t.logger.Logging.Debugf("error while execute query %v", err)
+		return nil, t.logger.ErrorMessage("error execute query")
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var student models.Student
+		err := rows.Scan(
+			&student.ID,
+			&student.FirstName,
+			&student.LastName,
+			&student.Email,
+			&student.Class,
+		)
+		if err != nil {
+			return nil, t.logger.ErrorMessage("error fetching the database")
+		}
+		students = append(students, student)
+
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, t.logger.ErrorLogger(err, "rows error")
+	}
+	return students, nil
+}

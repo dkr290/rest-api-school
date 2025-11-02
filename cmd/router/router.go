@@ -96,6 +96,15 @@ func routesTeachers(api huma.API, teacherHandler *handlers.TeacherHandlers) {
 	}, teacherHandler.PatchTeachersHandler)
 
 	huma.Register(api, huma.Operation{
+		OperationID: "students-by-teacher-id",
+		Method:      http.MethodGet,
+		Path:        "/teachers/{id}/students",
+		Summary:     "Get students by id of the teacher",
+		Description: "Get students by teacher id",
+		Tags:        []string{"Teachers"},
+	}, teacherHandler.GetStudentsByTeacherId)
+
+	huma.Register(api, huma.Operation{
 		OperationID: "delete-teachers",
 		Method:      http.MethodDelete,
 		Path:        "/teachers",

@@ -75,3 +75,15 @@ type DeleteTeachersOutput struct {
 		ID     []int  `json:"id"`
 	}
 }
+
+type TeacherIDInput struct {
+	ID int `path:"id"`
+}
+
+type TeacherStatusOutput struct {
+	Body struct {
+		Status string           `json:"status"`
+		Count  int              `json:"count"`
+		Data   []models.Student `json:"data"`
+	}
+}
