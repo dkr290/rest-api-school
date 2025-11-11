@@ -43,5 +43,3 @@ type TeacherPatchBody struct {
 	Subject   string `json:"subject,omitempty"    example:"History"         doc:"Subject to teach"`
 	Email     string `json:"email,omitempty"      example:"ac@example.com " doc:"Email"`
 }
-
-type Exec struct{}

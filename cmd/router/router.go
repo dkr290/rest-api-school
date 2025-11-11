@@ -187,3 +187,104 @@ func routesStudents(api huma.API, studentHandler *handlers.StudentHandlers) {
 		Tags:        []string{"Students"},
 	}, studentHandler.DeleteStudentsHandler)
 }
+
+func routesExec(api huma.API, execHandler *handlers.ExecHandlers) {
+	huma.Register(api, huma.Operation{
+		OperationID: "get-exec",
+		Method:      http.MethodGet,
+		Path:        "/execs",
+		Summary:     "Get exec",
+		Description: "Get exec.",
+		Tags:        []string{"Exec"},
+	}, execHandler.ExecGetHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "add-exec",
+		Method:      http.MethodPost,
+		Path:        "/execs",
+		Summary:     "Add exec",
+		Description: "Add exec.",
+		Tags:        []string{"Exec"},
+	}, execHandler.ExecAddHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "patch-execs",
+		Method:      http.MethodPatch,
+		Path:        "/execs",
+		Summary:     "Patch execs",
+		Description: "Patch bulk many execs.",
+		Tags:        []string{"Exec"},
+	}, execHandler.PatchExecsHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "get-exec-by-id",
+		Method:      http.MethodGet,
+		Path:        "/execs/{id}",
+		Summary:     "Get exec by id",
+		Description: "Get exec by id.",
+		Tags:        []string{"Exec"},
+	}, execHandler.ExecGetByIdHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "path-exec-by-id",
+		Method:      http.MethodPatch,
+		Path:        "/execs/{id}",
+		Summary:     "Path exec by id",
+		Description: "Path exec by id.",
+		Tags:        []string{"Exec"},
+	}, execHandler.ExecPatchByIdHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "delete-exec-by-id",
+		Method:      http.MethodDelete,
+		Path:        "/execs/{id}",
+		Summary:     "Delete exec by id",
+		Description: "Delete exec by id.",
+		Tags:        []string{"Exec"},
+	}, execHandler.ExecDeleteByIdHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "password-change-exec",
+		Method:      http.MethodPost,
+		Path:        "/execs/{id}/updatepassword",
+		Summary:     "Change exec password by id",
+		Description: "Change exec password by id.",
+		Tags:        []string{"Exec"},
+	}, execHandler.ExecPasswordChangeHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "login-exec",
+		Method:      http.MethodPost,
+		Path:        "/execs/login",
+		Summary:     "Logiun exec",
+		Description: "Login execs.",
+		Tags:        []string{"Exec"},
+	}, execHandler.ExecLoginHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "logout-execs",
+		Method:      http.MethodPost,
+		Path:        "/execs/logout",
+		Summary:     "Logout exec",
+		Description: "Logout execs.",
+		Tags:        []string{"Exec"},
+	}, execHandler.LogoutExecsHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "forgotpassword-execs",
+		Method:      http.MethodPost,
+		Path:        "/execs/forgotpassword",
+		Summary:     "Forgot password exec",
+		Description: "Forgot password execs.",
+		Tags:        []string{"Exec"},
+	}, execHandler.ForgotpasswordExecsHandler)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "resetpassword-execs",
+		Method:      http.MethodPost,
+		Path:        "/execs/resetpassword/reset/{resetcode}",
+		Summary:     "Password reset exec",
+		Description: "Password reset execs.",
+		Tags:        []string{"Exec"},
+	}, execHandler.PasswordresetExecsHandler)
+}
