@@ -228,7 +228,7 @@ func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 		Summary:     "Get exec by id",
 		Description: "Get exec by id.",
 		Tags:        []string{"Exec"},
-	}, execHandler.ExecGetByIdHandler)
+	}, execHandler.ExecGetByIDHandler)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "path-exec-by-id",
@@ -237,7 +237,7 @@ func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 		Summary:     "Path exec by id",
 		Description: "Path exec by id.",
 		Tags:        []string{"Exec"},
-	}, execHandler.ExecPatchByIdHandler)
+	}, execHandler.ExecPatchByIDHandler)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-exec-by-id",
@@ -246,7 +246,7 @@ func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 		Summary:     "Delete exec by id",
 		Description: "Delete exec by id.",
 		Tags:        []string{"Exec"},
-	}, execHandler.ExecDeleteByIdHandler)
+	}, execHandler.ExecDeleteByIDHandler)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "password-change-exec",

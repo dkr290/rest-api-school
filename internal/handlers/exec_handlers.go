@@ -33,21 +33,21 @@ func (h *ExecsHandlers) PatchExecsHandler(ctx context.Context, input *struct{}) 
 	return nil, nil
 }
 
-func (h *ExecsHandlers) ExecGetByIdHandler(
+func (h *ExecsHandlers) ExecGetByIDHandler(
 	ctx context.Context,
 	input *struct{},
 ) (*struct{}, error) {
 	return nil, nil
 }
 
-func (h *ExecsHandlers) ExecPatchByIdHandler(
+func (h *ExecsHandlers) ExecPatchByIDHandler(
 	ctx context.Context,
 	input *struct{},
 ) (*struct{}, error) {
 	return nil, nil
 }
 
-func (h *ExecsHandlers) ExecDeleteByIdHandler(
+func (h *ExecsHandlers) ExecDeleteByIDHandler(
 	ctx context.Context,
 	input *struct{},
 ) (*struct{}, error) {
