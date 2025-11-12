@@ -42,7 +42,7 @@ func ConnectDB(conf *config.Config) (*sql.DB, error) {
 
 	}
 
-	CreateTables("school", db)
+	CreateTables(conf.DBDatabase, db)
 	return db, nil
 }
 
@@ -61,7 +61,7 @@ func CreateTables(database string, db *sql.DB) {
 	    username VARCHAR(50) NOT NULL UNIQUE,
 	    password VARCHAR(255) NOT NULL,
 	    password_changed_at VARCHAR(255),
-	    user_created_at TIMESTQAMP DEFAULT CURRENT_TIMESTAMP,
+	    user_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	    password_reset_token VARCHAR(255),
 	    inactive_status BOOLEAN NOT NULL,
 	    role VARCHAR(255) NOT NULL,
@@ -82,14 +82,14 @@ func CreateTables(database string, db *sql.DB) {
 	`
 	createStudentsTable := `
    CREATE TABLE IF NOT EXISTS students (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	  first_name VARCHAR(255) NOT NULL,
 	  last_name VARCHAR(255) NOT NULL,
 	  email   VARCHAR(255) NOT NULL UNIQUE,
-	  class VARCHAR(255) OT NULL,
+	  class VARCHAR(50) NOT NULL,
 	  INDEX (email),
-	  FOREIGN KEY (class) REFERENCES teachers(class)
-	)AUTO_INCREMENT=100;
+	  FOREIGN KEY (class) REFERENCES teachers (class)
+) AUTO_INCREMENT=100;
 	`
 	tables = append(tables, createExecTable, createTeachersTable, createStudentsTable)
 	_, err := db.Exec(createDBIfNotExists)
