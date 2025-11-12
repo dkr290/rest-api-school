@@ -41,10 +41,17 @@ func ConnectDB(conf *config.Config) (*sql.DB, error) {
 		}
 
 	}
+
+	CreateTables("school", db)
 	return db, nil
 }
 
-func CreateTables() {
+func CreateTables(database string, db *sql.DB) {
+	createDBIfNotExists := `
+    CREATE DATABASE IF NOT EXISTS school;
+	`
+	var tables []string
+
 	createExecTable := `
     CREATE TABLE IF NOT EXISTS execs (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -84,4 +91,16 @@ func CreateTables() {
 	  FOREIGN KEY (class) REFERENCES teachers(class)
 	)AUTO_INCREMENT=100;
 	`
+	tables = append(tables, createExecTable, createTeachersTable, createStudentsTable)
+	_, err := db.Exec(createDBIfNotExists)
+	if err != nil {
+		panic("could not create database" + err.Error())
+	}
+
+	for _, table := range tables {
+		_, err := db.Exec(table)
+		if err != nil {
+			panic("could not create tables" + err.Error())
+		}
+	}
 }

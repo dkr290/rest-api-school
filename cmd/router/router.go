@@ -17,8 +17,11 @@ func Router(db *sql.DB, debugFlag bool) *http.ServeMux {
 	router := http.NewServeMux()
 	teachersDB := dataops.NewTeachersDB(db, llogger)
 	studentsDB := dataops.NewStudentsDB(db, llogger)
+	execDB := dataops.NewExecsDB(db, llogger)
+
 	teacherHandler := handlers.NewTeachersHandler(teachersDB)
 	studetnsHandler := handlers.NewStudentsHandler(studentsDB)
+	execHandler := handlers.NewExecsHandler(execDB)
 
 	api := humago.New(router, huma.DefaultConfig("My API", "1.0.0"))
 
@@ -27,6 +30,8 @@ func Router(db *sql.DB, debugFlag bool) *http.ServeMux {
 	routesTeachers(api, teacherHandler)
 
 	routesStudents(api, studetnsHandler)
+
+	routesExec(api, execHandler)
 
 	return router
 }
@@ -188,7 +193,7 @@ func routesStudents(api huma.API, studentHandler *handlers.StudentHandlers) {
 	}, studentHandler.DeleteStudentsHandler)
 }
 
-func routesExec(api huma.API, execHandler *handlers.ExecHandlers) {
+func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-exec",
 		Method:      http.MethodGet,

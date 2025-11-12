@@ -25,3 +25,5 @@ type StudentInf interface {
 	DeleteStudent(int) error
 	DeleteBulkStudents([]int) ([]int, error)
 }
+
+type ExecsInf interface{}
