@@ -43,3 +43,34 @@ func ConnectDB(conf *config.Config) (*sql.DB, error) {
 	}
 	return db, nil
 }
+
+func CreateTables() {
+	createExecTable := `
+    CREATE TABLE IF NOT EXISTS execs (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+	    first_name VARCHAR(255) NOT NULL,
+	    last_name VARCHAR(255) NOT NULL,
+	    email VARCHAR(50) NOT NULL UNIQUE,
+	    username VARCHAR(50) NOT NULL UNIQUE,
+	    password VARCHAR(255) NOT NULL,
+	    password_changed_at VARCHAR(255),
+	    user_created_at TIMESTQAMP DEFAULT CURRENT_TIMESTAMP,
+	    password_reset_token VARCHAR(255),
+	    inactive_status BOOLEAN NOT NULL,
+	    role VARCHAR(255) NOT NULL,
+	    INDEX idx_email (email),
+	    INDEX idx_username (username)
+	);
+	`
+	createTeachersTable := `
+    CREATE TABLE IF NOT EXISTS teachers (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+	    first_name VARCHAR(255) NOT NULL,
+	    last_name VARCHAR(255) NOT NULL,
+	    email VARCHAR(255) NOT NULL UNIQUE,
+	    class VARCHAR(255) NOT NULL,
+	    subject VARCHAR(255) NOT NULL,
+	    INDEX (email)
+	) AUTO_INCREMENT=100;
+	`
+}
