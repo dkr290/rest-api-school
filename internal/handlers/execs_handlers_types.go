@@ -3,9 +3,9 @@ package handlers
 
 import "github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
 
-type ExecssInput struct {
+type ExecsInput struct {
 	Body struct {
-		Students []models.ExecInput `json:"execs" doc:"Execs"`
+		Execs []models.ExecInput `json:"execs" doc:"Execs"`
 	}
 }
 
@@ -25,7 +25,7 @@ type ExecIDResponse struct {
 
 type ExecsUpdateInput struct {
 	Body struct {
-		Student models.ExecUpdateBody `json:"exec" doc:"Exec update body output"`
+		Exec models.ExecUpdateBody `json:"exec" doc:"Exec update body output"`
 	}
 }
 type ExecsUpdateOutput struct {
@@ -37,7 +37,7 @@ type ExecsUpdateOutput struct {
 
 type ExecPatchInput struct {
 	Body struct {
-		Student models.ExecPatchBody `json:"exec" doc:"Exec patch body output"`
+		Exec models.ExecPatchBody `json:"exec" doc:"Exec patch body output"`
 	}
 }
 
