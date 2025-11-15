@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/dataops"
 )
 
@@ -21,8 +22,16 @@ func NewExecsHandler(tdb dataops.ExecsInf) *ExecsHandlers {
 func (h *ExecsHandlers) ExecGetHandler(ctx context.Context, input *struct {
 	ID int `path:"id"`
 },
-) (*struct{}, error) {
-	return nil, nil
+) (*ExecIDResponse, error) {
+	resp := ExecIDResponse{}
+
+	exec, err := h.execsDB.GetExecsByID(input.ID)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Error quering database", err)
+	}
+
+	resp.Body.Data = exec
+	return &resp, nil
 }
 
 func (h *ExecsHandlers) ExecAddHandler(ctx context.Context, input *struct{}) (*struct{}, error) {

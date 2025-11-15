@@ -1,0 +1,71 @@
+// Package handlers - part of handlers but only for huma query paramaters
+package handlers
+
+import "github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
+
+type ExecssInput struct {
+	Body struct {
+		Students []models.ExecInput `json:"execs" doc:"Execs"`
+	}
+}
+
+type ExecsOutput struct {
+	Body struct {
+		Status string        `json:"status"`
+		Count  int           `json:"count"`
+		Data   []models.Exec `json:"data"`
+	}
+}
+
+type ExecIDResponse struct {
+	Body struct {
+		Data models.Exec `json:"data"`
+	}
+}
+
+type ExecsUpdateInput struct {
+	Body struct {
+		Student models.ExecUpdateBody `json:"exec" doc:"Exec update body output"`
+	}
+}
+type ExecsUpdateOutput struct {
+	Body struct {
+		Status string      `json:"status"`
+		Data   models.Exec `json:"data"`
+	}
+}
+
+type ExecPatchInput struct {
+	Body struct {
+		Student models.ExecPatchBody `json:"exec" doc:"Exec patch body output"`
+	}
+}
+
+type ExecPatchOutput struct {
+	Body struct {
+		Status string      `json:"status"`
+		Data   models.Exec `json:"data"`
+	}
+}
+
+type ExecsPatchInput struct {
+	Body struct {
+		Students []models.ExecPatchBody `json:"exec" doc:"Execs patch"`
+	}
+}
+type ExecsPatchOutput struct {
+	Body struct {
+		Status string        `json:"status"`
+		Data   []models.Exec `json:"data"`
+	}
+}
+
+type DeleteExecsInput struct {
+	IDn []int `query:"idn" example:"[104,106,103]" doc:"Execs IDn to delete"`
+}
+type DeleteExecsOutput struct {
+	Body struct {
+		Status string `json:"status"`
+		ID     []int  `json:"id"`
+	}
+}

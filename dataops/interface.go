@@ -26,4 +26,7 @@ type StudentInf interface {
 	DeleteBulkStudents([]int) ([]int, error)
 }
 
-type ExecsInf interface{}
+type ExecsInf interface {
+	InsertExecs(*models.Exec) (int64, error)
+	GetExecsByID(int) (models.Exec, error)
+}
