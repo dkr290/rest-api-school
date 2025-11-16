@@ -65,6 +65,7 @@ func CreateTables(database string, db *sql.DB) {
 	    password_reset_token VARCHAR(255),
 	    inactive_status BOOLEAN NOT NULL,
 	    role VARCHAR(255) NOT NULL,
+	    password_token_expires VARCHAR(255),
 	    INDEX idx_email (email),
 	    INDEX idx_username (username)
 	);

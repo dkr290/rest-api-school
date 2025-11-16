@@ -114,7 +114,9 @@ func (e *ExecsHandlers) ExecsGetHandler(
 			&exec.LastName,
 			&exec.Email,
 			&exec.Username,
-			&exec.Password,
+			&exec.UserCreatedAt,
+			&exec.InactiveStatus,
+			&exec.Role,
 		)
 		if err != nil {
 			return nil, huma.Error500InternalServerError("Error scanning database results", err)
@@ -153,6 +155,7 @@ func (h *ExecsHandlers) PatchExecsHandler(
 		FirstName: input.Body.Exec.FirstName,
 		LastName:  input.Body.Exec.LastName,
 		Email:     input.Body.Exec.Email,
+		Username:  input.Body.Exec.Username,
 	}
 
 	updatedExec, err := h.execsDB.PatchExec(input.Body.Exec.ID, exec)

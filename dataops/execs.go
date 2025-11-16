@@ -122,7 +122,7 @@ func (e *Execs) PatchExec(id int, updatedExec models.Exec) (models.Exec, error) 
 	var existingExec models.Exec
 
 	row := e.db.QueryRow(
-		"SELECT id ,first_name,last_name,email, username from execs WHERE id = ?",
+		"SELECT id ,first_name,last_name,email, username  from execs WHERE id = ?",
 		id,
 	)
 	err := row.Scan(

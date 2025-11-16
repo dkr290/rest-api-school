@@ -23,18 +23,6 @@ type ExecIDResponse struct {
 	}
 }
 
-type ExecsUpdateInput struct {
-	Body struct {
-		Exec models.ExecUpdateBody `json:"exec" doc:"Exec update body output"`
-	}
-}
-type ExecsUpdateOutput struct {
-	Body struct {
-		Status string      `json:"status"`
-		Data   models.Exec `json:"data"`
-	}
-}
-
 type ExecPatchInput struct {
 	Body struct {
 		Exec models.ExecPatchBody `json:"exec" doc:"Exec patch body output"`

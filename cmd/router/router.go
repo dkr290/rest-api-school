@@ -197,7 +197,7 @@ func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-exec",
 		Method:      http.MethodGet,
-		Path:        "/exec",
+		Path:        "/exec/{id}",
 		Summary:     "Get exec",
 		Description: "Get exec.",
 		Tags:        []string{"Exec"},
