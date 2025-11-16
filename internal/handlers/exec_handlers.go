@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"sync"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -84,13 +83,59 @@ func (h *ExecsHandlers) ExecAddHandler(
 	return resp, nil
 }
 
+func (e *ExecsHandlers) ExecsGetHandler(
+	ctx context.Context,
+	input *models.ExecsQueryInput,
+) (*ExecsOutput, error) {
+	response := ExecsOutput{}
+
+	params := map[string]string{
+		"first_name": input.FirstName,
+		"last_name":  input.LastName,
+		"email":      input.Email,
+		"username":   input.Username,
+		"role":       input.Role,
+	}
+
+	sortBy := input.SortBy
+	// filtering by params basically with query parameters anf filtering
+	rows, err := e.execsDB.GetAllExecs(params, sortBy)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Error quering database", err)
+	}
+
+	execsList := make([]models.Exec, 0)
+
+	for rows.Next() {
+		var exec models.Exec
+		err = rows.Scan(
+			&exec.ID,
+			&exec.FirstName,
+			&exec.LastName,
+			&exec.Email,
+			&exec.Username,
+			&exec.Password,
+		)
+		if err != nil {
+			return nil, huma.Error500InternalServerError("Error scanning database results", err)
+		}
+		execsList = append(execsList, exec)
+	}
+	defer rows.Close()
+
+	response.Body.Status = "Sucess"
+	response.Body.Count = len(execsList)
+	response.Body.Data = execsList
+	return &response, nil
+}
+
 func (h *ExecsHandlers) PatchExecsHandler(
 	ctx context.Context,
 	input *ExecPatchInput,
 ) (*ExecPatchOutput, error) {
 	id := input.Body.Exec.ID
 	if id <= 0 {
-		return nil, huma.NewError(http.StatusBadRequest, "invalid student id", nil)
+		return nil, huma.NewError(http.StatusBadRequest, "invalid exec id", nil)
 	}
 
 	email := input.Body.Exec.Email
@@ -110,7 +155,7 @@ func (h *ExecsHandlers) PatchExecsHandler(
 		Email:     input.Body.Exec.Email,
 	}
 
-	updatedExec, err := h.execsDB.PatchExecs(input.Body.Exec.ID, exec)
+	updatedExec, err := h.execsDB.PatchExec(input.Body.Exec.ID, exec)
 	if err != nil {
 		return nil, err
 	}
@@ -120,62 +165,37 @@ func (h *ExecsHandlers) PatchExecsHandler(
 	return &resp, nil
 }
 
-func (h *ExecsHandlers) UpdateExecHandler(
-	ctx context.Context,
-	input *ExecsUpdateInput,
-) (*ExecsUpdateOutput, error) {
-	id := input.Body.Exec.ID
-	if id <= 0 {
-		return nil, huma.NewError(http.StatusBadRequest, "invalid student id", nil)
-	}
-	email := input.Body.Exec.Email
-	err := utils.EmailCheck(email)
-	if err != nil {
-		return nil, huma.Error400BadRequest(
-			"Invalid mail format",
-			fmt.Errorf("invalid email: %s", email),
-		)
-	}
-
-	exec := models.Exec{
-		ID:        input.Body.Exec.ID,
-		FirstName: input.Body.Exec.FirstName,
-		LastName:  input.Body.Exec.LastName,
-		Email:     input.Body.Exec.Email,
-	}
-
-	updatedExec, err := h.execsDB.UpdateExec(input.Body.Exec.ID, exec)
-	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			return nil, huma.Error404NotFound("not found", err)
-		}
-		return nil, huma.Error500InternalServerError("error update database", err)
-	}
-	resp := ExecsUpdateOutput{}
-	resp.Body.Status = "Sucess"
-	resp.Body.Data = updatedExec
-	return &resp, nil
-}
-
-func (h *ExecsHandlers) ExecGetByIDHandler(
-	ctx context.Context,
-	input *struct{},
-) (*struct{}, error) {
-	return nil, nil
-}
-
-func (h *ExecsHandlers) ExecPatchByIDHandler(
-	ctx context.Context,
-	input *struct{},
-) (*struct{}, error) {
-	return nil, nil
-}
-
 func (h *ExecsHandlers) ExecDeleteByIDHandler(
 	ctx context.Context,
-	input *struct{},
-) (*struct{}, error) {
-	return nil, nil
+	input *struct {
+		ID int `path:"id"`
+	},
+) (*struct {
+	Body struct {
+		Status string `json:"status"`
+		ID     int    `json:"id"`
+	}
+}, error,
+) {
+	err := h.execsDB.DeleteExec(input.ID)
+	if err != nil {
+		return nil, err
+	}
+	output := &struct {
+		Body struct {
+			Status string `json:"status"`
+			ID     int    `json:"id"`
+		}
+	}{
+		Body: struct {
+			Status string `json:"status"`
+			ID     int    `json:"id"`
+		}{
+			Status: "Exec deleted sucessfully",
+			ID:     input.ID,
+		},
+	}
+	return output, err
 }
 
 func (h *ExecsHandlers) ExecPasswordChangeHandler(

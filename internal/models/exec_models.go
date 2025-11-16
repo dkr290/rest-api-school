@@ -45,3 +45,12 @@ type ExecUpdateBody struct {
 	Password  string `json:"password"   example:"password"       doc:"password"                  required:"true" minLength:"2" maxLength:"255"`
 	Role      string `json:"role"       example:"admin"          doc:"role to use like admin"    required:"true"`
 }
+
+type ExecsQueryInput struct {
+	FirstName string   `query:"first_name"`
+	LastName  string   `query:"last_name"`
+	Email     string   `query:"email"`
+	Username  string   `query:"username"`
+	Role      string   `query:"role"`
+	SortBy    []string `query:"sort_by"    example:"first_name:asc" doc:"Order by asc or desc of the records"`
+}

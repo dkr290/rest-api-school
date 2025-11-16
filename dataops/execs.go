@@ -35,7 +35,7 @@ func (e *Execs) InsertExecs(ex *models.Exec) (int64, error) {
 	sqlResp, err := stmt.Exec(values...)
 	if err != nil {
 
-		e.logger.Logging.Debugf("error insert student to the database %v", err)
+		e.logger.Logging.Debugf("error insert exec to the database %v", err)
 		return 0, e.logger.ErrorMessage("sql database error")
 	}
 
@@ -98,7 +98,7 @@ func (e *Execs) GetAllExecs(params map[string]string, sortBy []string) (*sql.Row
 func (e *Execs) GetExecsByID(id int) (models.Exec, error) {
 	var exec models.Exec
 
-	err := e.db.QueryRow("SELECT id, first_name, last_name ,email, username,inactive_status, role FROM execs WHERE id = ?", id).
+	err := e.db.QueryRow("SELECT id, first_name, last_name ,email, username, inactive_status, role FROM execs WHERE id = ?", id).
 		Scan(
 			&exec.ID,
 			&exec.FirstName,
@@ -113,16 +113,16 @@ func (e *Execs) GetExecsByID(id int) (models.Exec, error) {
 		return models.Exec{}, e.logger.ErrorMessage("sql exec error")
 	} else if err != nil {
 		e.logger.Logging.Debugf("error quring the database %v", err)
-		return models.Exec{}, e.logger.ErrorMessage("sql student error")
+		return models.Exec{}, e.logger.ErrorMessage("sql exec error")
 	}
 	return exec, nil
 }
 
-func (e *Execs) UpdateExec(id int, updatedExec models.Exec) (models.Exec, error) {
+func (e *Execs) PatchExec(id int, updatedExec models.Exec) (models.Exec, error) {
 	var existingExec models.Exec
 
 	row := e.db.QueryRow(
-		"SELECT id ,first_name,last_name,email, FROM execs WHERE id = ?",
+		"SELECT id ,first_name,last_name,email, username from execs WHERE id = ?",
 		id,
 	)
 	err := row.Scan(
@@ -130,52 +130,11 @@ func (e *Execs) UpdateExec(id int, updatedExec models.Exec) (models.Exec, error)
 		&existingExec.FirstName,
 		&existingExec.LastName,
 		&existingExec.Email,
+		&existingExec.Username,
 	)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			e.logger.Logging.Debugf("exec not found %v", err)
-			return models.Exec{}, e.logger.ErrorMessage("database retreive data error")
-		} else {
-			e.logger.Logging.Debugf("unable to retreive the data %v", err)
-			return models.Exec{}, e.logger.ErrorMessage("sql error")
-		}
-	}
-
-	updatedExec.ID = existingExec.ID
-	switch {
-	}
-
-	_, err = e.db.Exec(
-		"UPDATE execs SET first_name = ?, last_name = ? ,email = ?  WHERE id = ?  ",
-		&updatedExec.FirstName,
-		&updatedExec.LastName,
-		&updatedExec.Email,
-		&updatedExec.ID,
-	)
-	if err != nil {
-		e.logger.Logging.Debugf("error updating the student database %v", err)
-		return models.Exec{}, e.logger.ErrorMessage("database error")
-	}
-
-	return updatedExec, nil
-}
-
-func (e *Execs) PatchExecs(id int, updatedExec models.Exec) (models.Exec, error) {
-	var existingExec models.Exec
-
-	row := e.db.QueryRow(
-		"SELECT id ,first_name,last_name,email from execs WHERE id = ?",
-		id,
-	)
-	err := row.Scan(
-		&existingExec.ID,
-		&existingExec.FirstName,
-		&existingExec.LastName,
-		&existingExec.Email,
-	)
-	if err != nil {
-		if err != sql.ErrNoRows {
-			e.logger.Logging.Debugf("Student not found %v", err)
+			e.logger.Logging.Debugf("Exec not found %v", err)
 			return models.Exec{}, e.logger.ErrorMessage("database error")
 		} else {
 			e.logger.Logging.Debugf("unable to retreive data %v", err)
@@ -227,18 +186,37 @@ func (e *Execs) PatchExecs(id int, updatedExec models.Exec) (models.Exec, error)
 	}
 
 	_, err = e.db.Exec(
-		"UPDATE students SET first_name = ?, last_name = ? ,email = ?  WHERE id = ?  ",
+		"UPDATE execs SET first_name = ?, last_name = ? ,email = ?, username = ?  WHERE id = ?  ",
 		existingExec.FirstName,
 		existingExec.LastName,
 		existingExec.Email,
+		existingExec.Username,
 		existingExec.ID,
 	)
 	if err != nil {
-		e.logger.Logging.Debugf("error updating student %v", err)
+		e.logger.Logging.Debugf("error updating exec %v", err)
 		return models.Exec{}, e.logger.ErrorMessage("database error")
 	}
 
 	return existingExec, nil
 }
 
-// TODO: here to delete one exec
+func (e *Execs) DeleteExec(id int) error {
+	result, err := e.db.Exec("DELETE from execs WHERE id = ?", id)
+	if err != nil {
+		e.logger.Logging.Debugf("error deleting exec %v", err)
+		return e.logger.ErrorMessage("database delete error")
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		e.logger.Logging.Debugf("error retreiving delete result %v", err)
+		return e.logger.ErrorMessage("error database delete operation")
+	}
+
+	if rowsAffected == 0 {
+		e.logger.Logging.Debugf("exec not found %v", err)
+		return e.logger.ErrorMessage("exec not found")
+	}
+
+	return nil
+}

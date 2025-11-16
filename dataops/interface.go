@@ -30,6 +30,6 @@ type ExecsInf interface {
 	InsertExecs(*models.Exec) (int64, error)
 	GetExecsByID(int) (models.Exec, error)
 	GetAllExecs(map[string]string, []string) (*sql.Rows, error)
-	UpdateExec(int, models.Exec) (models.Exec, error)
-	PatchExecs(int, models.Exec) (models.Exec, error)
+	PatchExec(int, models.Exec) (models.Exec, error)
+	DeleteExec(int) error
 }

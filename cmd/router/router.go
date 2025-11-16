@@ -197,7 +197,7 @@ func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-exec",
 		Method:      http.MethodGet,
-		Path:        "/execs",
+		Path:        "/exec",
 		Summary:     "Get exec",
 		Description: "Get exec.",
 		Tags:        []string{"Exec"},
@@ -213,6 +213,15 @@ func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 	}, execHandler.ExecAddHandler)
 
 	huma.Register(api, huma.Operation{
+		OperationID: "get-execs",
+		Method:      http.MethodGet,
+		Path:        "/execs",
+		Summary:     "Get execs",
+		Description: "Get execs.",
+		Tags:        []string{"Exec"},
+	}, execHandler.ExecsGetHandler)
+
+	huma.Register(api, huma.Operation{
 		OperationID: "patch-execs",
 		Method:      http.MethodPatch,
 		Path:        "/execs",
@@ -220,24 +229,6 @@ func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 		Description: "Patch bulk many execs.",
 		Tags:        []string{"Exec"},
 	}, execHandler.PatchExecsHandler)
-
-	huma.Register(api, huma.Operation{
-		OperationID: "get-exec-by-id",
-		Method:      http.MethodGet,
-		Path:        "/execs/{id}",
-		Summary:     "Get exec by id",
-		Description: "Get exec by id.",
-		Tags:        []string{"Exec"},
-	}, execHandler.ExecGetByIDHandler)
-
-	huma.Register(api, huma.Operation{
-		OperationID: "path-exec-by-id",
-		Method:      http.MethodPatch,
-		Path:        "/execs/{id}",
-		Summary:     "Path exec by id",
-		Description: "Path exec by id.",
-		Tags:        []string{"Exec"},
-	}, execHandler.ExecPatchByIDHandler)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-exec-by-id",
