@@ -38,10 +38,10 @@ func Init(debug bool) *Logger {
 
 func (l *Logger) ErrorLogger(err error, message string) error {
 	l.Logging.WithError(err).Error(message)
-	return fmt.Errorf(message)
+	return fmt.Errorf("%s", message)
 }
 
 func (l *Logger) ErrorMessage(message string) error {
 	l.Logging.Println(message)
-	return fmt.Errorf(message)
+	return fmt.Errorf("%s", message)
 }
