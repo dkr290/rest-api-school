@@ -21,7 +21,7 @@ func Router(db *sql.DB, debugFlag bool) *http.ServeMux {
 
 	teacherHandler := handlers.NewTeachersHandler(teachersDB)
 	studetnsHandler := handlers.NewStudentsHandler(studentsDB)
-	execHandler := handlers.NewExecsHandler(execDB)
+	execHandler := handlers.NewExecsHandler(execDB, llogger)
 
 	api := humago.New(router, huma.DefaultConfig("My API", "1.0.0"))
 

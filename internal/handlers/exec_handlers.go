@@ -9,17 +9,20 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/dataops"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/utils"
 )
 
 type ExecsHandlers struct {
 	mutex   sync.Mutex
 	execsDB dataops.ExecsInf
+	logger  *logging.Logger
 }
 
-func NewExecsHandler(tdb dataops.ExecsInf) *ExecsHandlers {
+func NewExecsHandler(tdb dataops.ExecsInf, logger *logging.Logger) *ExecsHandlers {
 	return &ExecsHandlers{
 		execsDB: tdb,
+		logger:  logger,
 	}
 }
 
@@ -56,13 +59,18 @@ func (h *ExecsHandlers) ExecAddHandler(
 				fmt.Errorf("invalid email: %s", newExec.Email),
 			)
 		}
+		encodedPass, err := utils.PasswordHash(newExec.Password)
+		if err != nil {
+			h.logger.Logging.Errorf("failed to generate salt %v", err)
+			return nil, huma.Error400BadRequest("error adding data")
+		}
 
 		exec := models.Exec{
 			FirstName: newExec.FirstName,
 			LastName:  newExec.LastName,
 			Email:     newExec.Email,
 			Username:  newExec.Username,
-			Password:  newExec.Password,
+			Password:  encodedPass,
 			Role:      newExec.Role,
 		}
 		id, err := h.execsDB.InsertExecs(&exec)
@@ -210,8 +218,41 @@ func (h *ExecsHandlers) ExecPasswordChangeHandler(
 
 func (h *ExecsHandlers) ExecLoginHandler(
 	ctx context.Context,
-	input *struct{},
-) (*struct{}, error) {
+	input *ExecsLoginInput,
+) (*ExecsLoginOutput, error) {
+	// Data Validation
+
+	exec := input.Body.Execs
+	if exec.Username == "" || exec.Password == "" {
+		h.logger.Logging.Debugf(
+			"Invalid or blank username or password for username=%s and password=%s",
+			exec.Username,
+			exec.Password,
+		)
+		return nil, huma.Error400BadRequest("Invalid or blank username or password")
+	}
+
+	// Search for the user if the user actually exists
+	exists, err := h.execsDB.SearchUsername(exec.Username)
+	if err != nil {
+		return nil, huma.Error404NotFound("database error:", err)
+	}
+	if !exists {
+		return nil, huma.Error404NotFound("user not found")
+	}
+	inactive, err := h.execsDB.IsInactiveUser(exec.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	if inactive {
+		return nil, huma.Error403Forbidden("user inactive")
+	}
+
+	// verify password
+
+	// Send token as responce or as a cookie
+
 	return nil, nil
 }
 

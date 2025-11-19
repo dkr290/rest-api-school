@@ -2,11 +2,15 @@
 package utils
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"golang.org/x/crypto/argon2"
 )
 
 func GenereateInsertQuery(model any, name string) string {
@@ -63,4 +67,17 @@ func EmailCheck(email string) error {
 		return fmt.Errorf("invalid email: %s", em)
 	}
 	return nil
+}
+
+func PasswordHash(password string) (string, error) {
+	salt := make([]byte, 16)
+	_, err := rand.Read(salt)
+	if err != nil {
+		return "", err
+	}
+	hash := argon2.IDKey([]byte(password), salt, 1, 64*1024, 4, 32)
+	saltBase64 := base64.StdEncoding.EncodeToString(salt)
+	hashBase64 := base64.StdEncoding.EncodeToString(hash)
+	encodedHash := fmt.Sprintf("%s.%s", saltBase64, hashBase64)
+	return encodedHash, nil
 }

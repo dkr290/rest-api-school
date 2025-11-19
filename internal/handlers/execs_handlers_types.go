@@ -57,3 +57,17 @@ type DeleteExecsOutput struct {
 		ID     []int  `json:"id"`
 	}
 }
+
+type ExecsLoginInput struct {
+	Body struct {
+		Execs models.ExecInput `json:"execs" doc:"Execs"`
+	}
+}
+
+type ExecsLoginOutput struct {
+	Body struct {
+		Status string      `json:"status"`
+		Count  int         `json:"count"`
+		Data   models.Exec `json:"data"`
+	}
+}
