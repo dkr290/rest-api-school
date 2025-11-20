@@ -1,7 +1,9 @@
 name: Rest API CI
 
 permissions:
+  contents: write
   packages: write
+
 on:
   push:
     branches:
