@@ -4,6 +4,9 @@ permissions:
   contents: write
   packages: write
 
+env:
+  VERSION: v2
+
 on:
   push:
     branches:
@@ -104,7 +107,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/rest-api:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/rest-api:$VERSION
           file: Dockerfile
       - name: Build and Push latest
         uses: docker/build-push-action@v6
