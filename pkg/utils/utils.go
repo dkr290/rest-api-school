@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"reflect"
 	"regexp"
 	"strings"
@@ -49,7 +48,6 @@ func GetStructValues(model any) []any {
 			values = append(values, modelValue.Field(i).Interface())
 		}
 	}
-	log.Println("Values", values)
 	return values
 }
 

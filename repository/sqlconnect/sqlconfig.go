@@ -78,7 +78,8 @@ func CreateTables(database string, db *sql.DB) {
 	    email VARCHAR(255) NOT NULL UNIQUE,
 	    class VARCHAR(255) NOT NULL,
 	    subject VARCHAR(255) NOT NULL,
-	    INDEX (email)
+	    INDEX (email),
+	    INDEX(class)
 	) AUTO_INCREMENT=100;
 	`
 	createStudentsTable := `
@@ -89,7 +90,7 @@ func CreateTables(database string, db *sql.DB) {
 	  email   VARCHAR(255) NOT NULL UNIQUE,
 	  class VARCHAR(50) NOT NULL,
 	  INDEX (email),
-	  FOREIGN KEY (class) REFERENCES teachers (class)
+	  FOREIGN KEY (class) REFERENCES teachers(class)
 ) AUTO_INCREMENT=100;
 	`
 	tables = append(tables, createExecTable, createTeachersTable, createStudentsTable)
