@@ -58,23 +58,11 @@ jobs:
       github.event_name != 'workflow_dispatch' ||
       github.event.inputs.run_all == 'true' ||
       github.event.inputs.run_build_and_push == 'true'
-    needs: run_model_training
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
-      - name: Download trained model
-        uses: actions/download-artifact@v5
-        with:
-          name: trained-model
-          path: models/
-
-      - name: Download preprocessor
-        uses: actions/download-artifact@v5
-        with:
-          name: preprocessor
-          path: models/trained/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -92,7 +80,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/fastapi:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/rest-api:${{ github.sha }}
           file: Dockerfile
       - name: Build and Push latest
         uses: docker/build-push-action@v6
@@ -100,5 +88,5 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/fastapi:latest
+          tags: ghcr.io/${{ github.repository_owner }}/rest-api:latest
           file: Dockerfile
