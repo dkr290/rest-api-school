@@ -1,0 +1,104 @@
+name: Rest API CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      run_all:
+        description: "Run all jobs"
+        required: false
+        default: "true"
+      run_test:
+        description: "Run only test"
+        required: false
+        default: "true"
+
+jobs:
+  test:
+    if: |
+      github.event_name != 'workflow_dispatch' ||
+      github.event.inputs.run_all == 'true' ||
+      github.event.inputs.run_test == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      - name: Set up Go
+        with:
+          go-version: "1.25"
+        uses: actions/setup-go@v6
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test -v ./... -cover
+      - name: Upload coverage report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.out
+
+  build_and_push:
+    if: |
+      github.event_name != 'workflow_dispatch' ||
+      github.event.inputs.run_all == 'true' ||
+      github.event.inputs.run_build_and_push == 'true'
+    needs: run_model_training
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Download trained model
+        uses: actions/download-artifact@v5
+        with:
+          name: trained-model
+          path: models/
+
+      - name: Download preprocessor
+        uses: actions/download-artifact@v5
+        with:
+          name: preprocessor
+          path: models/trained/
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/fastapi:${{ github.sha }}
+          file: Dockerfile
+      - name: Build and Push latest
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/fastapi:latest
+          file: Dockerfile
