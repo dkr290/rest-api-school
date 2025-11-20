@@ -53,11 +53,17 @@ jobs:
           name: coverage-report
           path: coverage.out
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Generate coverage badge
+        run: |
+          go install github.com/jpoles1/go-coverage-badge@latest
+          go-coverage-badge -o coverage.svg
+      - name: Commit coverage badge
+        uses: EndBug/add-and-commit@v9
         with:
-          files: coverage.out
-          fail_ci_if_error: true
+          add: "coverage.svg"
+          message: "Update coverage badge"
+          author_name: github-actions
+          author_email: github-actions@github.com
 
   build_and_push:
     if: |
