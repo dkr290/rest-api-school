@@ -4,7 +4,7 @@ WORKDIR /build
 COPY . .
 
 # Build the service binary.
-RUN go build -o rest-api -ldflags "-X main.build=main" ./
+RUN go build -o rest-api -ldflags "-X main.build=main" ./cmd/api/main.go
 
 FROM gcr.io/distroless/base-debian12
 
