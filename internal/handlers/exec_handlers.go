@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/config"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/dataops"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
@@ -22,12 +23,18 @@ type ExecsHandlers struct {
 	mutex   sync.Mutex
 	execsDB dataops.ExecsInf
 	logger  *logging.Logger
+	conf    config.Config
 }
 
-func NewExecsHandler(tdb dataops.ExecsInf, logger *logging.Logger) *ExecsHandlers {
+func NewExecsHandler(
+	tdb dataops.ExecsInf,
+	logger *logging.Logger,
+	conf config.Config,
+) *ExecsHandlers {
 	return &ExecsHandlers{
 		execsDB: tdb,
 		logger:  logger,
+		conf:    conf,
 	}
 }
 
@@ -291,16 +298,31 @@ func (h *ExecsHandlers) ExecLoginHandler(
 
 	}
 	// generate token
-	token := "abc"
+	user, err := h.execsDB.GetLoginDetailsForUsername(exec.Username)
+	if err != nil {
+		h.logger.Logging.Errorf("error on get user details %v", err)
+		return nil, huma.Error403Forbidden("incorrect user get from db")
+
+	}
+	tokenString, err := utils.SighnToken(
+		fmt.Sprintf("%v", user.ID),
+		user.Username,
+		user.Role,
+		h.conf,
+	)
+	if err != nil {
+		h.logger.Logging.Errorf("Could not create login token %v", err)
+		return nil, huma.Error500InternalServerError("Could not create login token", err)
+	}
 
 	// Send token as responce or as a cookie
 	// how to make it as cookie in huma
 
 	out := &ExecsLoginOutput{}
-	out.Body.Token = token
+	out.Body.Token = tokenString
 	out.Body.SetCookie = http.Cookie{
 		Name:     "Bearer",
-		Value:    token,
+		Value:    tokenString,
 		Path:     "/",
 		HttpOnly: true,
 		Expires:  time.Now().Add(24 * time.Hour),

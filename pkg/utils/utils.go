@@ -8,7 +8,10 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"time"
 
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/config"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -80,6 +83,24 @@ func PasswordHash(password string) (string, error) {
 	return encodedHash, nil
 }
 
-func SighnToken(userId, username, role string) (string, error) {
-	return "", nil
+func SighnToken(userID, username, role string, config config.Config) (string, error) {
+	jwtSecret := config.JWTSecret
+	jwtExpiresIn := config.JWTExpiresIn
+
+	claims := jwt.MapClaims{
+		"uid":  userID,
+		"user": username,
+		"role": role,
+	}
+
+	claims["exp"] = jwt.NewNumericDate(time.Now().Add(jwtExpiresIn))
+
+	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	signedToken, err := tkn.SignedString([]byte(jwtSecret))
+	if err != nil {
+		return "", fmt.Errorf("internal error %v", err)
+	}
+
+	return signedToken, nil
 }

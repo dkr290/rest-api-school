@@ -34,4 +34,5 @@ type ExecsInf interface {
 	DeleteExec(int) error
 	SearchUsername(string) (bool, error, string)
 	IsInactiveUser(string) (bool, error)
+	GetLoginDetailsForUsername(string) (models.Exec, error)
 }

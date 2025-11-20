@@ -7,12 +7,13 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/config"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/dataops"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/handlers"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
 )
 
-func Router(db *sql.DB, debugFlag bool) *http.ServeMux {
+func Router(db *sql.DB, debugFlag bool, conf config.Config) *http.ServeMux {
 	llogger := logging.Init(debugFlag)
 	router := http.NewServeMux()
 	teachersDB := dataops.NewTeachersDB(db, llogger)
@@ -21,7 +22,7 @@ func Router(db *sql.DB, debugFlag bool) *http.ServeMux {
 
 	teacherHandler := handlers.NewTeachersHandler(teachersDB)
 	studetnsHandler := handlers.NewStudentsHandler(studentsDB)
-	execHandler := handlers.NewExecsHandler(execDB, llogger)
+	execHandler := handlers.NewExecsHandler(execDB, llogger, conf)
 
 	api := humago.New(router, huma.DefaultConfig("My API", "1.0.0"))
 

@@ -245,3 +245,14 @@ func (e *Execs) IsInactiveUser(username string) (bool, error) {
 	}
 	return false, nil
 }
+
+func (e *Execs) GetLoginDetailsForUsername(username string) (models.Exec, error) {
+	var exec models.Exec
+	err := e.db.QueryRow("SELECT id ,first_name, last_name , email, username, password ,inactive_status, role FROM execs WHERE username = ?", username).
+		Scan(&exec.ID, &exec.FirstName, &exec.LastName, &exec.Email, &exec.Username, &exec.Password, &exec.InactiveStatus, &exec.Role)
+	if err != nil {
+		e.logger.Logging.Debugf("error scanning the exec to the SQL %v", err)
+		return models.Exec{}, e.logger.ErrorMessage("user not found")
+	}
+	return exec, nil
+}

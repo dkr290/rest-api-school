@@ -22,7 +22,7 @@ func main() {
 		fmt.Println("Error ", err)
 		return
 	}
-	router := router.Router(db, conf.Debug)
+	router := router.Router(db, conf.Debug, *conf)
 
 	rl := middleware.NewRateLimit(200, time.Minute)
 	server := &http.Server{
