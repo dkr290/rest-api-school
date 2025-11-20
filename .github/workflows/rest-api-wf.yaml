@@ -72,7 +72,7 @@ jobs:
       - name: Commit coverage badge
         uses: EndBug/add-and-commit@v9
         with:
-          add: "coverage.svg"
+          add: "--force coverage.svg"
           message: "Update coverage badge"
           author_name: github-actions
           author_email: github-actions@github.com
