@@ -221,15 +221,15 @@ func (e *Execs) DeleteExec(id int) error {
 	return nil
 }
 
-func (e *Execs) SearchUsername(username string) (bool, error) {
+func (e *Execs) SearchUsername(username string) (bool, error, string) {
 	var exec models.Exec
 	err := e.db.QueryRow("SELECT id ,first_name, last_name , email, username, password ,inactive_status, role FROM execs WHERE username = ?", username).
 		Scan(&exec.ID, &exec.FirstName, &exec.LastName, &exec.Email, &exec.Username, &exec.Password, &exec.InactiveStatus, &exec.Role)
 	if err != nil {
 		e.logger.Logging.Debugf("error scanning the exec to the SQL %v", err)
-		return false, e.logger.ErrorMessage("user not found")
+		return false, e.logger.ErrorMessage("user not found"), ""
 	}
-	return true, nil
+	return true, nil, exec.Password
 }
 
 func (e *Execs) IsInactiveUser(username string) (bool, error) {

@@ -1,7 +1,11 @@
 // Package handlers - part of handlers but only for huma query paramaters
 package handlers
 
-import "github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
+import (
+	"net/http"
+
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
+)
 
 type ExecsInput struct {
 	Body struct {
@@ -60,14 +64,13 @@ type DeleteExecsOutput struct {
 
 type ExecsLoginInput struct {
 	Body struct {
-		Execs models.ExecInput `json:"execs" doc:"Execs"`
+		Exec models.ExecLoginInput `json:"execs" doc:"Execs"`
 	}
 }
 
 type ExecsLoginOutput struct {
 	Body struct {
-		Status string      `json:"status"`
-		Count  int         `json:"count"`
-		Data   models.Exec `json:"data"`
+		SetCookie http.Cookie `header:"Set-Cookie" json:"-"`
+		Token     string      `                    json:"token"`
 	}
 }

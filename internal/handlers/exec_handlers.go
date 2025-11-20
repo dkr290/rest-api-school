@@ -2,15 +2,20 @@ package handlers
 
 import (
 	"context"
+	"crypto/subtle"
+	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/dataops"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/utils"
+	"golang.org/x/crypto/argon2"
 )
 
 type ExecsHandlers struct {
@@ -222,7 +227,7 @@ func (h *ExecsHandlers) ExecLoginHandler(
 ) (*ExecsLoginOutput, error) {
 	// Data Validation
 
-	exec := input.Body.Execs
+	exec := input.Body.Exec
 	if exec.Username == "" || exec.Password == "" {
 		h.logger.Logging.Debugf(
 			"Invalid or blank username or password for username=%s and password=%s",
@@ -233,7 +238,7 @@ func (h *ExecsHandlers) ExecLoginHandler(
 	}
 
 	// Search for the user if the user actually exists
-	exists, err := h.execsDB.SearchUsername(exec.Username)
+	exists, err, passFromDB := h.execsDB.SearchUsername(exec.Username)
 	if err != nil {
 		return nil, huma.Error404NotFound("database error:", err)
 	}
@@ -250,10 +255,58 @@ func (h *ExecsHandlers) ExecLoginHandler(
 	}
 
 	// verify password
+	ps := strings.Split(passFromDB, ".")
+	if len(ps) != 2 {
+		h.logger.Logging.Error("invalid encoded hash format")
+		return nil, huma.Error400BadRequest("invalid encoded hash format")
+	}
+
+	saltBase := ps[0]
+	hashedPasswordBase64 := ps[1]
+
+	salt, err := base64.StdEncoding.DecodeString(saltBase)
+	if err != nil {
+		h.logger.Logging.Error("failed to decode the salt")
+		return nil, huma.Error400BadRequest("invalid encoded hash format")
+
+	}
+	hashedDBPassword, err := base64.StdEncoding.DecodeString(hashedPasswordBase64)
+	if err != nil {
+		h.logger.Logging.Error("failed to decode the hashed password")
+		return nil, huma.Error400BadRequest("invalid encoded hash format for password")
+
+	}
+
+	hashInputPassword := argon2.IDKey([]byte(exec.Password), salt, 1, 64*1024, 4, 32)
+
+	if len(hashedDBPassword) != len(hashInputPassword) {
+		h.logger.Logging.Error("incorrect password")
+		return nil, huma.Error403Forbidden("incorrect password")
+	}
+
+	if subtle.ConstantTimeCompare(hashedDBPassword, hashInputPassword) == 1 {
+	} else {
+		h.logger.Logging.Error("incorrect password")
+		return nil, huma.Error403Forbidden("incorrect password")
+
+	}
+	// generate token
+	token := "abc"
 
 	// Send token as responce or as a cookie
+	// how to make it as cookie in huma
 
-	return nil, nil
+	out := &ExecsLoginOutput{}
+	out.Body.Token = token
+	out.Body.SetCookie = http.Cookie{
+		Name:     "Bearer",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  time.Now().Add(24 * time.Hour),
+	}
+
+	return out, nil
 }
 
 func (h *ExecsHandlers) LogoutExecsHandler(

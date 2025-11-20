@@ -32,6 +32,6 @@ type ExecsInf interface {
 	GetAllExecs(map[string]string, []string) (*sql.Rows, error)
 	PatchExec(int, models.Exec) (models.Exec, error)
 	DeleteExec(int) error
-	SearchUsername(string) (bool, error)
+	SearchUsername(string) (bool, error, string)
 	IsInactiveUser(string) (bool, error)
 }

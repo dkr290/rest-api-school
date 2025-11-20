@@ -16,6 +16,10 @@ type Exec struct {
 	InactiveStatus       bool           `json:"inactive_status,omitempty" db:"inactive_status,omitempty"`
 	Role                 string         `json:"role,omitempty"            db:"role,omitempty"`
 }
+type ExecLoginInput struct {
+	Username string `json:"username" required:"true" minLength:"2" maxLength:"255" doc:"username" examle:"username"`
+	Password string `json:"password" required:"true" minLength:"2" maxLength:"255" doc:"password"                   example:"password"`
+}
 
 type ExecInput struct {
 	FirstName string `json:"first_name" required:"true" minLength:"2" maxLength:"255" example:"Tom"                 doc:"First name of the exec"`

@@ -79,3 +79,7 @@ func PasswordHash(password string) (string, error) {
 	encodedHash := fmt.Sprintf("%s.%s", saltBase64, hashBase64)
 	return encodedHash, nil
 }
+
+func SighnToken(userId, username, role string) (string, error) {
+	return "", nil
+}

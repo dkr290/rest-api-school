@@ -4,16 +4,19 @@ import (
 	"flag"
 	"os"
 	"strconv"
+	"time"
 )
 
 type Config struct {
-	Port       string
-	DBUser     string
-	DBPassword string
-	DBDatabase string
-	DBPort     string
-	DBHost     string
-	Debug      bool
+	Port         string
+	DBUser       string
+	DBPassword   string
+	DBDatabase   string
+	DBPort       string
+	DBHost       string
+	Debug        bool
+	JWTSecret    string
+	JWTExpiresIn time.Duration
 }
 
 func LoadConfig() *Config {
@@ -23,6 +26,7 @@ func LoadConfig() *Config {
 }
 
 func (c *Config) GetFlags() {
+	var JwtStringExpireValue string
 	flag.StringVar(
 		&c.Port,
 		"app-port",
@@ -40,6 +44,8 @@ func (c *Config) GetFlags() {
 		"Database port for Mariadb database connection",
 	)
 	flag.BoolVar(&c.Debug, "debug", false, "Using debug true or false")
+	flag.StringVar(&c.JWTSecret, "jwt-secret", "jwtsecret", "use the jwt secret")
+	flag.StringVar(&JwtStringExpireValue, "jwt-expire", "60s", "expiration time of jwt token")
 	flag.Parse()
 
 	if dbhost := getEnv("DATABASE_HOST"); dbhost != "" {
@@ -62,6 +68,24 @@ func (c *Config) GetFlags() {
 	if dbport := getEnv("DATABASE_PORT"); dbport != "" {
 		c.DBPort = dbport
 	}
+	if jwtsecret := getEnv("JWT_SECRET"); jwtsecret != "" {
+		c.JWTSecret = jwtsecret
+	}
+
+	if JwtStrExp := getEnv("JWT_EXPIRES_IN"); JwtStrExp != "" {
+		d, err := time.ParseDuration(JwtStrExp)
+		if err != nil {
+			panic(err)
+		}
+		c.JWTExpiresIn = d
+	} else {
+		d, err := time.ParseDuration(JwtStringExpireValue)
+		if err != nil {
+			panic(err)
+		}
+		c.JWTExpiresIn = d
+	}
+
 	if debugFl := getEnv("DEBUG_FL"); debugFl != "" {
 		if debug, err := strconv.ParseBool(debugFl); err == nil {
 			c.Debug = debug
