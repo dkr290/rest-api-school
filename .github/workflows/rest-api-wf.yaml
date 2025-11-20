@@ -46,17 +46,25 @@ jobs:
 
       - name: Run tests
         run: go test -v -coverprofile=coverage.out ./...
-      - name: Upload coverage report
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage.out
+
+      - name: Extract coverage percentage
+        id: coverage
+        run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total: | awk '{print substr($3, 1, length($3)-1)}')
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
 
       - name: Generate coverage badge
         run: |
-          go install github.com/jpoles1/go-coverage-badge@latest
-          go-coverage-badge -o coverage.svg
+          COLOR="red"
+          VALUE=${COVERAGE%.*}
+          if [ "$VALUE" -ge 90 ]; then COLOR="brightgreen";
+          elif [ "$VALUE" -ge 80 ]; then COLOR="green";
+          elif [ "$VALUE" -ge 70 ]; then COLOR="yellowgreen";
+          elif [ "$VALUE" -ge 60 ]; then COLOR="yellow";
+          elif [ "$VALUE" -ge 50 ]; then COLOR="orange";
+          fi
+          curl -s "https://img.shields.io/badge/Coverage-${COVERAGE}%25-${COLOR}.svg" > coverage.svg
+
       - name: Commit coverage badge
         uses: EndBug/add-and-commit@v9
         with:
