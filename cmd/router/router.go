@@ -253,7 +253,7 @@ func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 		OperationID: "login-exec",
 		Method:      http.MethodPost,
 		Path:        "/execs/login",
-		Summary:     "Logiun exec",
+		Summary:     "Logun exec",
 		Description: "Login execs.",
 		Tags:        []string{"Exec"},
 	}, execHandler.ExecLoginHandler)

@@ -70,7 +70,14 @@ type ExecsLoginInput struct {
 
 type ExecsLoginOutput struct {
 	Body struct {
-		SetCookie http.Cookie `header:"Set-Cookie" json:"-"`
-		Token     string      `                    json:"token"`
+		Token string `                    json:"token"`
 	}
+	SetCookie http.Cookie `header:"Set-Cookie"`
+}
+
+type ExecLogoutOutput struct {
+	Body struct {
+		Status string `json:"status"`
+	}
+	SetCookie http.Cookie `header:"Set-Cookie"`
 }

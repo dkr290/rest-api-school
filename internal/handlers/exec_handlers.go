@@ -317,15 +317,16 @@ func (h *ExecsHandlers) ExecLoginHandler(
 
 	// Send token as responce or as a cookie
 	// how to make it as cookie in huma
-
 	out := &ExecsLoginOutput{}
 	out.Body.Token = tokenString
-	out.Body.SetCookie = http.Cookie{
+	out.SetCookie = http.Cookie{
 		Name:     "Bearer",
 		Value:    tokenString,
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   true,
 		Expires:  time.Now().Add(24 * time.Hour),
+		SameSite: http.SameSiteStrictMode,
 	}
 
 	return out, nil
@@ -347,7 +348,19 @@ func (h *ExecsHandlers) ForgotpasswordExecsHandler(
 
 func (h *ExecsHandlers) PasswordresetExecsHandler(
 	ctx context.Context,
-	input *struct{},
-) (*struct{}, error) {
-	return nil, nil
+	_ *struct{},
+) (*ExecLogoutOutput, error) {
+	out := &ExecLogoutOutput{}
+	out.SetCookie = http.Cookie{
+		Name:     "Bearer",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		Expires:  time.Unix(0, 0),
+		SameSite: http.SameSiteStrictMode,
+	}
+	out.Body.Status = "Logged out sucessfully"
+
+	return out, nil
 }
