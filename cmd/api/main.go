@@ -9,6 +9,7 @@ import (
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/cmd/router"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/config"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/middleware"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/repository/sqlconnect"
 )
 
@@ -22,13 +23,18 @@ func main() {
 		fmt.Println("Error ", err)
 		return
 	}
-	router := router.Router(db, conf.Debug, *conf)
+	llogger := logging.Init(conf.Debug)
+
+	router := router.Router(db, *conf)
 
 	rl := middleware.NewRateLimit(200, time.Minute)
 	server := &http.Server{
 		Addr: port,
 		Handler: rl.Middleware(middleware.ResponseTimeMiddleware(
-			middleware.SecurityHeaders(middleware.Cors(router))),
+			middleware.SecurityHeaders(
+				middleware.Cors(middleware.JWTMiddleware(router, *conf, *llogger)),
+			),
+		),
 		),
 	}
 

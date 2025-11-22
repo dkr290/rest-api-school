@@ -334,20 +334,6 @@ func (h *ExecsHandlers) ExecLoginHandler(
 
 func (h *ExecsHandlers) LogoutExecsHandler(
 	ctx context.Context,
-	input *struct{},
-) (*struct{}, error) {
-	return nil, nil
-}
-
-func (h *ExecsHandlers) ForgotpasswordExecsHandler(
-	ctx context.Context,
-	input *struct{},
-) (*struct{}, error) {
-	return nil, nil
-}
-
-func (h *ExecsHandlers) PasswordresetExecsHandler(
-	ctx context.Context,
 	_ *struct{},
 ) (*ExecLogoutOutput, error) {
 	out := &ExecLogoutOutput{}
@@ -363,4 +349,18 @@ func (h *ExecsHandlers) PasswordresetExecsHandler(
 	out.Body.Status = "Logged out sucessfully"
 
 	return out, nil
+}
+
+func (h *ExecsHandlers) ForgotpasswordExecsHandler(
+	ctx context.Context,
+	input *struct{},
+) (*struct{}, error) {
+	return nil, nil
+}
+
+func (h *ExecsHandlers) PasswordresetExecsHandler(
+	ctx context.Context,
+	_ *struct{},
+) (*struct{}, error) {
+	return nil, nil
 }

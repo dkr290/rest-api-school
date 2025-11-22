@@ -13,8 +13,8 @@ import (
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
 )
 
-func Router(db *sql.DB, debugFlag bool, conf config.Config) *http.ServeMux {
-	llogger := logging.Init(debugFlag)
+func Router(db *sql.DB, conf config.Config) *http.ServeMux {
+	llogger := logging.Init(conf.Debug)
 	router := http.NewServeMux()
 	teachersDB := dataops.NewTeachersDB(db, llogger)
 	studentsDB := dataops.NewStudentsDB(db, llogger)
