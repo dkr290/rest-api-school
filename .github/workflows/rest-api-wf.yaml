@@ -5,7 +5,7 @@ permissions:
   packages: write
 
 env:
-  VERSION: v2
+  VERSION: v3
 
 on:
   push:
