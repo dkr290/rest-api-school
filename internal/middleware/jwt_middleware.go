@@ -15,27 +15,27 @@ import (
 type ContextKey string
 
 func JWTMiddleware(next http.Handler, conf config.Config, logger logging.Logger) http.Handler {
-	fmt.Println(strings.Repeat("-", 20) + "JWT Middleware" + strings.Repeat("-", 20))
+	logger.Logging.Debugln(strings.Repeat("-", 20) + "JWT Middleware" + strings.Repeat("-", 20))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestPath := r.URL.Path
-		if strings.HasPrefix(requestPath, "/docs") ||
-			strings.HasPrefix(requestPath, "/openapi") ||
-			strings.HasPrefix(requestPath, "/schemas") ||
-			strings.HasPrefix(requestPath, "/execs/login") {
-			next.ServeHTTP(w, r)
-			return // Important: Return so we don't execute the JWT check below
+		for _, path := range conf.ExcludedAuthMiddlewarePath {
+			path = strings.TrimSpace(path)
+			if strings.HasPrefix(requestPath, path) {
+				next.ServeHTTP(w, r)
+				return // Important: Return so we don't execute the JWT check below
+			}
 		}
 
-		fmt.Println("Inside JWT Middleware")
 		token, err := r.Cookie("Bearer")
 		if err != nil {
-			fmt.Println("No Bearer tioken found")
+			logger.Logging.Debugln("No Bearer tioken found")
 			http.Error(w, "Authorization Header Missing ", http.StatusUnauthorized)
 			return
 		}
 		parsedToken, err := jwt.Parse(token.Value, func(token *jwt.Token) (any, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				logger.Logging.Debugln("unexpected signing method")
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 			return []byte(conf.JWTSecret), nil

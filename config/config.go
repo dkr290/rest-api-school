@@ -4,19 +4,21 @@ import (
 	"flag"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
 type Config struct {
-	Port         string
-	DBUser       string
-	DBPassword   string
-	DBDatabase   string
-	DBPort       string
-	DBHost       string
-	Debug        bool
-	JWTSecret    string
-	JWTExpiresIn time.Duration
+	Port                       string
+	DBUser                     string
+	DBPassword                 string
+	DBDatabase                 string
+	DBPort                     string
+	DBHost                     string
+	Debug                      bool
+	JWTSecret                  string
+	JWTExpiresIn               time.Duration
+	ExcludedAuthMiddlewarePath []string
 }
 
 func LoadConfig() *Config {
@@ -27,6 +29,7 @@ func LoadConfig() *Config {
 
 func (c *Config) GetFlags() {
 	var JwtStringExpireValue string
+	var exclPaths string
 	flag.StringVar(
 		&c.Port,
 		"app-port",
@@ -46,6 +49,12 @@ func (c *Config) GetFlags() {
 	flag.BoolVar(&c.Debug, "debug", false, "Using debug true or false")
 	flag.StringVar(&c.JWTSecret, "jwt-secret", "jwtsecret", "use the jwt secret")
 	flag.StringVar(&JwtStringExpireValue, "jwt-expire", "60s", "expiration time of jwt token")
+	flag.StringVar(
+		&exclPaths,
+		"login-path-to-exclude",
+		"/docs,/openapi,/schemas,/execs/login",
+		"paths to exclude when making login middleware check",
+	)
 	flag.Parse()
 
 	if dbhost := getEnv("DATABASE_HOST"); dbhost != "" {
@@ -84,6 +93,14 @@ func (c *Config) GetFlags() {
 			panic(err)
 		}
 		c.JWTExpiresIn = d
+	}
+	envPaths := getEnv("LOGIN_EXCLUDE_PATHS")
+
+	if envPaths != "" {
+		paths := strings.Split(envPaths, ",")
+		c.ExcludedAuthMiddlewarePath = paths
+	} else {
+		c.ExcludedAuthMiddlewarePath = strings.Split(exclPaths, ",")
 	}
 
 	if debugFl := getEnv("DEBUG_FL"); debugFl != "" {
