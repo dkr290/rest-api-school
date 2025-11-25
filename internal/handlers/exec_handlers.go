@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -347,6 +348,85 @@ func (h *ExecsHandlers) LogoutExecsHandler(
 		SameSite: http.SameSiteStrictMode,
 	}
 	out.Body.Status = "Logged out sucessfully"
+
+	return out, nil
+}
+
+func (h *ExecsHandlers) UpdatePasswordHandler(
+	ctx context.Context,
+	input *ExecUpdatePasswordInput,
+) (*ExecUpdatePasswordOutput, error) {
+	id := input.Body.ID
+	if id <= 0 {
+		return nil, huma.NewError(http.StatusBadRequest, "invalid exec id", nil)
+	}
+
+	if input.Body.CurrentPassword == "" || input.Body.NewPassword == "" {
+		return nil, huma.Error400BadRequest("Please enter a password")
+	}
+
+	// Search for the user if the user actually exists
+	userFromDB, passFromDB, role, err := h.execsDB.GetUserPasswordFromId(input.Body.ID)
+	if err != nil {
+		return nil, huma.Error404NotFound("database error:", err)
+	}
+
+	// verify password
+	ps := strings.Split(passFromDB, ".")
+	if len(ps) != 2 {
+		h.logger.Logging.Error("invalid encoded hash format")
+		return nil, huma.Error400BadRequest("invalid encoded hash format")
+	}
+	saltBase := ps[0]
+	hashedPasswordBase64 := ps[1]
+
+	salt, err := base64.StdEncoding.DecodeString(saltBase)
+	if err != nil {
+		h.logger.Logging.Error("failed to decode the salt")
+		return nil, huma.Error400BadRequest("invalid encoded hash format")
+
+	}
+	hashedDBPassword, err := base64.StdEncoding.DecodeString(hashedPasswordBase64)
+	if err != nil {
+		h.logger.Logging.Error("failed to decode the hashed password")
+		return nil, huma.Error400BadRequest("invalid encoded hash format for password")
+
+	}
+
+	hashInputPassword := argon2.IDKey([]byte(input.Body.CurrentPassword), salt, 1, 64*1024, 4, 32)
+
+	if len(hashedDBPassword) != len(hashInputPassword) ||
+		subtle.ConstantTimeCompare(hashedDBPassword, hashInputPassword) != 1 {
+		return nil, huma.Error400BadRequest("current password does not match")
+	}
+
+	encodedPass, err := utils.PasswordHash(input.Body.NewPassword)
+	if err != nil {
+		h.logger.Logging.Debugf("failed to generate salt %v", err)
+		return nil, huma.Error400BadRequest("error hashing password")
+	}
+	err = h.execsDB.UpdatePasswordChange(id, encodedPass)
+	if err != nil {
+		h.logger.Logging.Debugf("update error: %v", err)
+		return nil, huma.Error400BadRequest("failed to update password")
+	}
+	token, err := utils.SighnToken(strconv.Itoa(id), userFromDB, role, h.conf)
+	if err != nil {
+		h.logger.Logging.Debugf("password is updated but token error: %v", err)
+		return nil, huma.Error400BadRequest("password updated, failed to create token")
+	}
+	out := &ExecUpdatePasswordOutput{}
+	out.Body.Token = token
+	out.SetCookie = http.Cookie{
+		Name:     "Bearer",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		Expires:  time.Now().Add(24 * time.Hour),
+		SameSite: http.SameSiteStrictMode,
+	}
+	out.Body.PasswordUpdated = "password updated sucessfully"
 
 	return out, nil
 }

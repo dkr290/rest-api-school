@@ -81,3 +81,18 @@ type ExecLogoutOutput struct {
 	}
 	SetCookie http.Cookie `header:"Set-Cookie"`
 }
+
+type ExecUpdatePasswordInput struct {
+	Body struct {
+		ID              int    `json:"id"`
+		CurrentPassword string `json:"current_password"`
+		NewPassword     string `json:"new_password"`
+	}
+}
+type ExecUpdatePasswordOutput struct {
+	Body struct {
+		Token           string `json:"token"`
+		PasswordUpdated string `json:"password_updated"`
+	}
+	SetCookie http.Cookie `header:"Set-Cookie"`
+}

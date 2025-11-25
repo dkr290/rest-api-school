@@ -35,4 +35,6 @@ type ExecsInf interface {
 	SearchUsername(string) (bool, error, string)
 	IsInactiveUser(string) (bool, error)
 	GetLoginDetailsForUsername(string) (models.Exec, error)
+	GetUserPasswordFromId(int) (string, string, string, error)
+	UpdatePasswordChange(int, string) error
 }

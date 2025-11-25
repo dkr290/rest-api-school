@@ -241,13 +241,13 @@ func routesExec(api huma.API, execHandler *handlers.ExecsHandlers) {
 	}, execHandler.ExecDeleteByIDHandler)
 
 	huma.Register(api, huma.Operation{
-		OperationID: "password-change-exec",
+		OperationID: "password-update-exec",
 		Method:      http.MethodPost,
 		Path:        "/execs/{id}/updatepassword",
 		Summary:     "Change exec password by id",
 		Description: "Change exec password by id.",
 		Tags:        []string{"Exec"},
-	}, execHandler.ExecPasswordChangeHandler)
+	}, execHandler.UpdatePasswordHandler)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "login-exec",

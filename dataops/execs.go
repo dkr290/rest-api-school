@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/internal/models"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
@@ -255,4 +256,37 @@ func (e *Execs) GetLoginDetailsForUsername(username string) (models.Exec, error)
 		return models.Exec{}, e.logger.ErrorMessage("user not found")
 	}
 	return exec, nil
+}
+
+func (e *Execs) GetUserPasswordFromId(id int) (string, string, string, error) {
+	var username string
+	var password string
+	var role string
+
+	err := e.db.QueryRow("SELECT username,password,role FROM execs WHERE id = ?", id).
+		Scan(&username, &password, &role)
+	if err != nil {
+		e.logger.Logging.Debugf("error scanning the exec to the SQL %v", err)
+		return "", "", "", e.logger.ErrorMessage("user not found")
+
+	}
+	return username, password, role, nil
+}
+
+func (e *Execs) UpdatePasswordChange(id int, password string) error {
+	currentTime := time.Now().Format(time.RFC3339)
+	_, err := e.db.Exec(
+		"UPDATE execs set password = ?, password_changed_at = ? WHERE id = ?",
+		password,
+		currentTime,
+		id,
+	)
+	if err != nil {
+		e.logger.Logging.Errorf(
+			"failed to update the password %v",
+			err,
+		)
+		return e.logger.ErrorMessage("faile to update password")
+	}
+	return nil
 }
