@@ -91,7 +91,6 @@ type ExecUpdatePasswordInput struct {
 }
 type ExecUpdatePasswordOutput struct {
 	Body struct {
-		Token           string `json:"token"`
 		PasswordUpdated string `json:"password_updated"`
 	}
 	SetCookie http.Cookie `header:"Set-Cookie"`

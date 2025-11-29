@@ -416,7 +416,6 @@ func (h *ExecsHandlers) UpdatePasswordHandler(
 		return nil, huma.Error400BadRequest("password updated, failed to create token")
 	}
 	out := &ExecUpdatePasswordOutput{}
-	out.Body.Token = token
 	out.SetCookie = http.Cookie{
 		Name:     "Bearer",
 		Value:    token,
