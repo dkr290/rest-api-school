@@ -304,3 +304,18 @@ func (e *Execs) GetIdFromEmail(email string) (models.Exec, error) {
 	}
 	return exec, nil
 }
+
+func (e *Execs) StoreResetToken(id int, hashedResetToken string, expiry string) error {
+	_, err := e.db.Exec(
+		"UPDATE execs SET password_reset_token = ? , password_token_expires = ? WHERE id = ? ",
+		hashedResetToken,
+		expiry,
+		id,
+	)
+	if err != nil {
+		e.logger.Logging.Debugf("Failed to stoer reset toe  %v", err)
+		return e.logger.ErrorMessage("database error")
+	}
+
+	return nil
+}

@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"net/smtp"
 	"reflect"
 	"regexp"
 	"strings"
@@ -103,4 +104,26 @@ func SighnToken(userID, username, role string, config config.Config) (string, er
 	}
 
 	return signedToken, nil
+}
+
+func SendTestResetEmail(
+	to, message string,
+	host string,
+	port string,
+) error {
+	from := "noreply@school-rest-api.example.com"
+	subject := "Your password reset link"
+
+	body := message
+
+	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s",
+		from, to, subject, body)
+
+	return smtp.SendMail(
+		fmt.Sprintf("%s:%s", host, port),
+		nil,
+		from,
+		[]string{to},
+		[]byte(msg),
+	)
 }

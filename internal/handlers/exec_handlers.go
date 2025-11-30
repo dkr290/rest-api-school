@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"context"
+	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -434,13 +437,50 @@ func (h *ExecsHandlers) ForgotpasswordExecsHandler(
 	ctx context.Context,
 	input *ExecsForgotPasswordInput,
 ) (*struct{}, error) {
+	// Validate email
+	if err := utils.EmailCheck(input.Body.Email); err != nil {
+		return nil, huma.Error400BadRequest("Invalid email format")
+	}
+	// Get user by email
 	exec, err := h.execsDB.GetIdFromEmail(input.Body.Email)
 	if err != nil {
-		h.logger.Logging.Debugf("tthe get Exec from theeemail error %v", err)
+		h.logger.Logging.Debugf("Error getting eec fom email: %v", err)
 		return nil, huma.Error400BadRequest("database error")
 
 	}
+	// Calculate expiry using the config duration
 	expiry := time.Now().Add(h.conf.ResetTokenExpDuration).Format(time.RFC3339)
+
+	tokenBytes := make([]byte, 32)
+	h.logger.Logging.Debugf("tokenbytes: %v", tokenBytes)
+	_, err = rand.Read(tokenBytes)
+	if err != nil {
+		h.logger.Logging.Debugf("Unexpected rand error occured: %v", err)
+	}
+
+	token := hex.EncodeToString(tokenBytes)
+
+	hashedToken := sha256.Sum256(tokenBytes)
+	h.logger.Logging.Debugf("Hashed toklen: %v", hashedToken)
+	hashedTokenString := hex.EncodeToString(hashedToken[:])
+
+	// Store reset token in database
+	err = h.execsDB.StoreResetToken(exec.ID, hashedTokenString, expiry)
+	if err != nil {
+		h.logger.Logging.Errorf("Failed to store reset token: %v", err)
+		return nil, huma.Error500InternalServerError("Failed to process request")
+	}
+	resetLink := fmt.Sprintf("http://localhost:8082/execs/resetpassword/reset/%s", token)
+	messg := fmt.Sprintf(
+		"Forgot your password? Reset your password using the following link: \n%s\nIf you didn't equest a password reset please ignore this email. This link is only valid for %s time",
+		resetLink,
+		h.conf.ResetTokenExpDuration,
+	)
+
+	err = utils.SendTestResetEmail(input.Body.Email, messg, "localhost", "1025")
+	if err != nil {
+		h.logger.Logging.Errorf("Test email failed: %v", err)
+	}
 
 	return nil, nil
 }

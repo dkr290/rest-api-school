@@ -115,7 +115,7 @@ func (c *Config) GetFlags() {
 		if err != nil {
 			panic(err)
 		}
-		c.JWTExpiresIn = d
+		c.ResetTokenExpDuration = d
 	}
 
 	envPaths := getEnv("LOGIN_EXCLUDE_PATHS")
