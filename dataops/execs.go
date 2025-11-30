@@ -290,3 +290,17 @@ func (e *Execs) UpdatePasswordChange(id int, password string) error {
 	}
 	return nil
 }
+
+func (e *Execs) GetIdFromEmail(email string) (models.Exec, error) {
+	var exec models.Exec
+	err := e.db.QueryRow("SELECT id FROM execs WHERE emails = ?", email).Scan(&exec.ID)
+	if err != nil {
+		e.logger.Logging.Debugf(
+			"error from GetIdFromEmail and scanning the exec to the SQL %v",
+			err,
+		)
+		return models.Exec{}, e.logger.ErrorMessage("user not found")
+
+	}
+	return exec, nil
+}

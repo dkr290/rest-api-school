@@ -19,6 +19,7 @@ type Config struct {
 	JWTSecret                  string
 	JWTExpiresIn               time.Duration
 	ExcludedAuthMiddlewarePath []string
+	ResetTokenExpDuration      time.Duration
 }
 
 func LoadConfig() *Config {
@@ -30,6 +31,7 @@ func LoadConfig() *Config {
 func (c *Config) GetFlags() {
 	var JwtStringExpireValue string
 	var exclPaths string
+	var resetTokenExpDuration string
 	flag.StringVar(
 		&c.Port,
 		"app-port",
@@ -50,11 +52,18 @@ func (c *Config) GetFlags() {
 	flag.StringVar(&c.JWTSecret, "jwt-secret", "jwtsecret", "use the jwt secret")
 	flag.StringVar(&JwtStringExpireValue, "jwt-expire", "60s", "expiration time of jwt token")
 	flag.StringVar(
+		&resetTokenExpDuration,
+		"reset-tkn-exp",
+		"10s",
+		"expiry duration of reset token in s min etc",
+	)
+	flag.StringVar(
 		&exclPaths,
 		"login-path-to-exclude",
 		"/docs,/openapi,/schemas,/execs/login",
 		"paths to exclude when making login middleware check",
 	)
+
 	flag.Parse()
 
 	if dbhost := getEnv("DATABASE_HOST"); dbhost != "" {
@@ -94,6 +103,21 @@ func (c *Config) GetFlags() {
 		}
 		c.JWTExpiresIn = d
 	}
+
+	if resetTokenExp := getEnv("RESET_TOKEN_EXP_DURATION"); resetTokenExp != "" {
+		d, err := time.ParseDuration(resetTokenExp)
+		if err != nil {
+			panic(err)
+		}
+		c.ResetTokenExpDuration = d
+	} else {
+		d, err := time.ParseDuration(resetTokenExpDuration)
+		if err != nil {
+			panic(err)
+		}
+		c.JWTExpiresIn = d
+	}
+
 	envPaths := getEnv("LOGIN_EXCLUDE_PATHS")
 
 	if envPaths != "" {

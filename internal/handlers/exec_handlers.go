@@ -432,8 +432,16 @@ func (h *ExecsHandlers) UpdatePasswordHandler(
 
 func (h *ExecsHandlers) ForgotpasswordExecsHandler(
 	ctx context.Context,
-	input *struct{},
+	input *ExecsForgotPasswordInput,
 ) (*struct{}, error) {
+	exec, err := h.execsDB.GetIdFromEmail(input.Body.Email)
+	if err != nil {
+		h.logger.Logging.Debugf("tthe get Exec from theeemail error %v", err)
+		return nil, huma.Error400BadRequest("database error")
+
+	}
+	expiry := time.Now().Add(h.conf.ResetTokenExpDuration).Format(time.RFC3339)
+
 	return nil, nil
 }
 

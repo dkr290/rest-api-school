@@ -37,4 +37,5 @@ type ExecsInf interface {
 	GetLoginDetailsForUsername(string) (models.Exec, error)
 	GetUserPasswordFromId(int) (string, string, string, error)
 	UpdatePasswordChange(int, string) error
+	GetIdFromEmail(string) (models.Exec, error)
 }

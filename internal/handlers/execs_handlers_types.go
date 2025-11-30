@@ -95,3 +95,9 @@ type ExecUpdatePasswordOutput struct {
 	}
 	SetCookie http.Cookie `header:"Set-Cookie"`
 }
+
+type ExecsForgotPasswordInput struct {
+	Body struct {
+		Email string `json:"email"`
+	}
+}
