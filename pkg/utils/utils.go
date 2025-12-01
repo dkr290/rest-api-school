@@ -106,7 +106,7 @@ func SighnToken(userID, username, role string, config config.Config) (string, er
 	return signedToken, nil
 }
 
-func SendTestResetEmail(
+func SendResetEmail(
 	to, message string,
 	host string,
 	port string,

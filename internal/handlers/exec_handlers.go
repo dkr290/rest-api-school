@@ -436,7 +436,12 @@ func (h *ExecsHandlers) UpdatePasswordHandler(
 func (h *ExecsHandlers) ForgotpasswordExecsHandler(
 	ctx context.Context,
 	input *ExecsForgotPasswordInput,
-) (*struct{}, error) {
+) (*struct {
+	Body struct {
+		Status string `json:"status"`
+	}
+}, error,
+) {
 	// Validate email
 	if err := utils.EmailCheck(input.Body.Email); err != nil {
 		return nil, huma.Error400BadRequest("Invalid email format")
@@ -477,12 +482,24 @@ func (h *ExecsHandlers) ForgotpasswordExecsHandler(
 		h.conf.ResetTokenExpDuration,
 	)
 
-	err = utils.SendTestResetEmail(input.Body.Email, messg, "localhost", "1025")
+	err = utils.SendResetEmail(input.Body.Email, messg, "localhost", "1025")
 	if err != nil {
-		h.logger.Logging.Errorf("Test email failed: %v", err)
+		h.logger.Logging.Errorf("Email send failed: %v", err)
 	}
 
-	return nil, nil
+	out := &struct {
+		Body struct {
+			Status string `json:"status"`
+		}
+	}{
+		Body: struct {
+			Status string `json:"status"`
+		}{
+			Status: "Email send sucessfully",
+		},
+	}
+
+	return out, nil
 }
 
 func (h *ExecsHandlers) PasswordresetExecsHandler(
