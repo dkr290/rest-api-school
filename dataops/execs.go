@@ -293,7 +293,7 @@ func (e *Execs) UpdatePasswordChange(id int, password string) error {
 
 func (e *Execs) GetIdFromEmail(email string) (models.Exec, error) {
 	var exec models.Exec
-	err := e.db.QueryRow("SELECT id FROM execs WHERE emails = ?", email).Scan(&exec.ID)
+	err := e.db.QueryRow("SELECT id FROM execs WHERE email = ?", email).Scan(&exec.ID)
 	if err != nil {
 		e.logger.Logging.Debugf(
 			"error from GetIdFromEmail and scanning the exec to the SQL %v",
@@ -317,5 +317,29 @@ func (e *Execs) StoreResetToken(id int, hashedResetToken string, expiry string) 
 		return e.logger.ErrorMessage("database error")
 	}
 
+	return nil
+}
+
+func (e *Execs) GetEmailFromToken(hashedTokenString string) (models.Exec, error) {
+	var user models.Exec
+	err := e.db.QueryRow("SELECT id, email FROM execs WHERE password_reset_token = ? AND password_token_expires > ?", hashedTokenString, time.Now().Format(time.RFC3339)).
+		Scan(&user.ID, &user.Email)
+	if err != nil {
+		return models.Exec{}, e.logger.ErrorLogger(err, "invalid or expired reset code")
+	}
+
+	return user, nil
+}
+
+func (e *Execs) UpdateResetedPassword(hashedPassword string, id int) error {
+	_, err := e.db.Exec(
+		"UPDATE execs SET password = ? , password_reset_token = NULL, password_reset_token_expires = NULL ,password_changed_at =? WHERE id = ?",
+		hashedPassword,
+		time.Now().Format(time.RFC3339),
+		id,
+	)
+	if err != nil {
+		return e.logger.ErrorLogger(err, "Internal error")
+	}
 	return nil
 }

@@ -39,4 +39,6 @@ type ExecsInf interface {
 	UpdatePasswordChange(int, string) error
 	GetIdFromEmail(string) (models.Exec, error)
 	StoreResetToken(int, string, string) error
+	GetEmailFromToken(string) (models.Exec, error)
+	UpdateResetedPassword(string, int) error
 }

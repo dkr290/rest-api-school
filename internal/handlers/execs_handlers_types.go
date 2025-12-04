@@ -101,3 +101,11 @@ type ExecsForgotPasswordInput struct {
 		Email string `json:"email"`
 	}
 }
+
+type ExecsPasswordResetInput struct {
+	ResetCode string `path:"resetcode" doc:"Password reset code"`
+	Body      struct {
+		NewPassword     string `json:"new_password" required:"true" minLength:"2" maxLength:"255" doc:"New password"`
+		ConfirmPassword string `json:"confirm_password" required:"true" minLength:"2" maxLength:"255" doc:"Confirm password"`
+	}
+}

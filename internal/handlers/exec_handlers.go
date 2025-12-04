@@ -504,7 +504,36 @@ func (h *ExecsHandlers) ForgotpasswordExecsHandler(
 
 func (h *ExecsHandlers) PasswordresetExecsHandler(
 	ctx context.Context,
-	_ *struct{},
+	input *ExecsPasswordResetInput,
 ) (*struct{}, error) {
+	if input.Body.NewPassword != input.Body.ConfirmPassword {
+		return nil, huma.Error500InternalServerError("Passwords did not match")
+	}
+
+	bytes, err := hex.DecodeString(input.ResetCode)
+	if err != nil {
+		h.logger.Logging.Errorf("Internal error %v", err)
+		return nil, huma.Error500InternalServerError("Internal error", err)
+	}
+
+	hashedToken := sha256.Sum256(bytes)
+	hashedTokenString := hex.EncodeToString(hashedToken[:])
+	exec, err := h.execsDB.GetEmailFromToken(hashedTokenString)
+	if err != nil {
+		h.logger.Logging.Errorf("error: %v", err)
+		return nil, huma.Error500InternalServerError("internal error", err)
+	}
+	hashedPassword, err := utils.PasswordHash(input.Body.NewPassword)
+	if err != nil {
+		h.logger.Logging.Errorf("Internal error %v", err)
+		return nil, huma.Error500InternalServerError("Internal error")
+	}
+
+	err = h.execsDB.UpdateResetedPassword(hashedPassword, exec.ID)
+	if err != nil {
+		h.logger.Logging.Errorf("Internal database error %v", err)
+		return nil, huma.Error500InternalServerError("Internal database error")
+	}
+
 	return nil, nil
 }
