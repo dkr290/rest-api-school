@@ -60,7 +60,7 @@ func (c *Config) GetFlags() {
 	flag.StringVar(
 		&exclPaths,
 		"login-path-to-exclude",
-		"/docs,/openapi,/schemas,/execs/login,/execs/forgotpassword",
+		"/docs,/openapi,/schemas,/execs/login,/execs/forgotpassword,/execs/resetpassword/reset",
 		"paths to exclude when making login middleware check",
 	)
 

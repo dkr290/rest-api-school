@@ -333,7 +333,7 @@ func (e *Execs) GetEmailFromToken(hashedTokenString string) (models.Exec, error)
 
 func (e *Execs) UpdateResetedPassword(hashedPassword string, id int) error {
 	_, err := e.db.Exec(
-		"UPDATE execs SET password = ? , password_reset_token = NULL, password_reset_token_expires = NULL ,password_changed_at =? WHERE id = ?",
+		"UPDATE execs SET password = ? , password_reset_token = NULL, password_token_expires = NULL ,password_changed_at =? WHERE id = ?",
 		hashedPassword,
 		time.Now().Format(time.RFC3339),
 		id,
