@@ -19,7 +19,7 @@ type TeachersInf interface {
 type StudentInf interface {
 	InsertStudents(*models.Student) (int64, error)
 	GetStudentByID(int) (models.Student, error)
-	GetAllStudents(map[string]string, []string) (*sql.Rows, error)
+	GetAllStudents(map[string]string, []string, int, int) (*sql.Rows, int, error)
 	UpdateStudent(int, models.Student) (models.Student, error)
 	PatchiStudent(int, models.Student) (models.Student, error)
 	DeleteStudent(int) error

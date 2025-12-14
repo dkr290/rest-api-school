@@ -50,11 +50,11 @@ func (c *Config) GetFlags() {
 	)
 	flag.BoolVar(&c.Debug, "debug", false, "Using debug true or false")
 	flag.StringVar(&c.JWTSecret, "jwt-secret", "jwtsecret", "use the jwt secret")
-	flag.StringVar(&JwtStringExpireValue, "jwt-expire", "60s", "expiration time of jwt token")
+	flag.StringVar(&JwtStringExpireValue, "jwt-expire", "1800s", "expiration time of jwt token")
 	flag.StringVar(
 		&resetTokenExpDuration,
 		"reset-tkn-exp",
-		"10s",
+		"600s",
 		"expiry duration of reset token in s min etc",
 	)
 	flag.StringVar(

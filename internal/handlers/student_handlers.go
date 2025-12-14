@@ -41,7 +41,10 @@ func (h *StudentHandlers) StudentGet(ctx context.Context, input *struct {
 
 func (h *StudentHandlers) StudentsGet(
 	ctx context.Context,
-	input *models.StudentsQueryInput,
+	input *struct {
+		models.StudentsQueryInput
+		PaginationParams
+	},
 ) (*StudentsOutput, error) {
 	response := StudentsOutput{}
 
@@ -54,7 +57,7 @@ func (h *StudentHandlers) StudentsGet(
 
 	sortBy := input.SortBy
 	// filtering by params basically with query parameters anf filtering
-	rows, err := h.studentsDB.GetAllStudents(params, sortBy)
+	rows, totalStudents, err := h.studentsDB.GetAllStudents(params, sortBy, input.Page, input.Limit)
 	if err != nil {
 		return nil, huma.Error500InternalServerError("Error quering database", err)
 	}
@@ -78,7 +81,9 @@ func (h *StudentHandlers) StudentsGet(
 	defer rows.Close()
 
 	response.Body.Status = "Sucess"
-	response.Body.Count = len(studentsList)
+	response.Body.Count = totalStudents
+	response.Body.Page = input.Page
+	response.Body.PageSize = input.Limit
 	response.Body.Data = studentsList
 	return &response, nil
 }

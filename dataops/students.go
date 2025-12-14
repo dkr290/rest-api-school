@@ -70,7 +70,10 @@ func (t *Students) GetStudentByID(id int) (models.Student, error) {
 	return student, nil
 }
 
-func (t *Students) GetAllStudents(params map[string]string, sortBy []string) (*sql.Rows, error) {
+func (t *Students) GetAllStudents(
+	params map[string]string,
+	sortBy []string, page, limit int,
+) (*sql.Rows, int, error) {
 	query := "SELECT id, first_name,last_name,email,class FROM students WHERE 1=1"
 	var args []any
 	var orderByParts []string
@@ -102,16 +105,33 @@ func (t *Students) GetAllStudents(params map[string]string, sortBy []string) (*s
 		}
 	}
 
-	if len(orderByParts) > 0 {
-		query += " ORDER BY " + strings.Join(orderByParts, ", ")
+	if len(orderByParts) == 0 {
+		orderByParts = append(orderByParts, "first_name ASC") // default sort
 	}
+
+	query += " ORDER BY " + strings.Join(orderByParts, ", ")
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+	query += " LIMIT ? OFFSET ?"
+	args = append(args, limit, offset)
 
 	rows, err := t.db.Query(query, args...)
 	if err != nil {
 		t.logger.Logging.Debugf("error retreiving the data %v", err)
-		return nil, t.logger.ErrorMessage("error retrtreiving data")
+		return nil, 0, t.logger.ErrorMessage("error retrtreiving data")
 	}
-	return rows, nil
+
+	var TotalStudents int
+
+	_ = t.db.QueryRow("SELECT COUNT(*) FROM students").Scan(&TotalStudents)
+
+	return rows, TotalStudents, nil
 }
 
 func (t *Students) UpdateStudent(id int, updatedStudent models.Student) (models.Student, error) {

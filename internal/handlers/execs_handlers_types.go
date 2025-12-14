@@ -109,3 +109,9 @@ type ExecsPasswordResetInput struct {
 		ConfirmPassword string `json:"confirm_password" required:"true" minLength:"2" maxLength:"255" doc:"Confirm password"`
 	}
 }
+
+type PasswordresetOutput struct {
+	Body struct {
+		Data string `json:"data"`
+	}
+}

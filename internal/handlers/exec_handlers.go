@@ -505,7 +505,7 @@ func (h *ExecsHandlers) ForgotpasswordExecsHandler(
 func (h *ExecsHandlers) PasswordresetExecsHandler(
 	ctx context.Context,
 	input *ExecsPasswordResetInput,
-) (*struct{}, error) {
+) (*PasswordresetOutput, error) {
 	if input.Body.NewPassword != input.Body.ConfirmPassword {
 		return nil, huma.Error500InternalServerError("Passwords did not match")
 	}
@@ -535,5 +535,8 @@ func (h *ExecsHandlers) PasswordresetExecsHandler(
 		return nil, huma.Error500InternalServerError("Internal database error")
 	}
 
-	return nil, nil
+	out := &PasswordresetOutput{}
+	out.Body.Data = "Password reset sucessfully"
+
+	return out, nil
 }

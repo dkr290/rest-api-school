@@ -11,9 +11,11 @@ type StudentsInput struct {
 
 type StudentsOutput struct {
 	Body struct {
-		Status string           `json:"status"`
-		Count  int              `json:"count"`
-		Data   []models.Student `json:"data"`
+		Status   string           `json:"status"`
+		Count    int              `json:"count"`
+		Page     int              `json:"page"`
+		PageSize int              `json:"page_size"`
+		Data     []models.Student `json:"data"`
 	}
 }
 
@@ -68,4 +70,9 @@ type DeleteStudentsOutput struct {
 		Status string `json:"status"`
 		ID     []int  `json:"id"`
 	}
+}
+
+type PaginationParams struct {
+	Page  int `query:"page"  default:"1"  minimum:"1"`
+	Limit int `query:"limit" default:"10" minimum:"1" maximum:"80"`
 }
