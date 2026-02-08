@@ -31,8 +31,8 @@ func main() {
 	server := &http.Server{
 		Addr: port,
 		Handler: rl.Middleware(middleware.ResponseTimeMiddleware(
-			middleware.SecurityHeaders(
-				middleware.Cors(middleware.JWTMiddleware(router, *conf, *llogger)),
+			middleware.SecurityHeaders(middleware.XSSMiddleware(
+				middleware.Cors(middleware.JWTMiddleware(router, *conf, *llogger))),
 			),
 		),
 		),
