@@ -9,10 +9,9 @@ import (
 
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/config"
 	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/logging"
+	"github.com/dkr290/go-advanced-projects/rest-api-school-management/pkg/utils"
 	"github.com/golang-jwt/jwt/v5"
 )
-
-type ContextKey string
 
 func JWTMiddleware(next http.Handler, conf config.Config, logger logging.Logger) http.Handler {
 	logger.Logging.Debugln(strings.Repeat("-", 20) + "JWT Middleware" + strings.Repeat("-", 20))
@@ -78,10 +77,10 @@ func JWTMiddleware(next http.Handler, conf config.Config, logger logging.Logger)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), ContextKey("role"), claims["role"])
-		ctx = context.WithValue(ctx, ContextKey("expiresAt"), claims["exp"])
-		ctx = context.WithValue(ctx, ContextKey("username"), claims["user"])
-		ctx = context.WithValue(ctx, ContextKey("uid"), claims["uid"])
+		ctx := context.WithValue(r.Context(), utils.ContextKey("role"), claims["role"])
+		ctx = context.WithValue(ctx, utils.ContextKey("expiresAt"), claims["exp"])
+		ctx = context.WithValue(ctx, utils.ContextKey("username"), claims["user"])
+		ctx = context.WithValue(ctx, utils.ContextKey("uid"), claims["uid"])
 
 		logger.Logging.Debug(ctx)
 		next.ServeHTTP(w, r.WithContext(ctx))

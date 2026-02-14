@@ -293,7 +293,15 @@ func (h *TeacherHandlers) GetStudentsByTeacherId(
 	input *TeacherIDInput,
 ) (*TeacherStatusOutput, error) {
 	teacherID := input.ID
-
+	_, err := utils.AzuthorizeUser(
+		ctx.Value(utils.ContextKey("role")).(string),
+		"admin",
+		"manager",
+		"exec",
+	)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Error not authorized", err)
+	}
 	students, err := h.teachersDB.GetStudentsByTeacherID(teacherID)
 	if err != nil {
 		return nil, huma.Error500InternalServerError("sql error", err)
